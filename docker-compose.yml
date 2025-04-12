@@ -1,0 +1,73 @@
+services:
+  gstreamer:
+    build:
+      context: .  # Ruta al directorio con el Dockerfile
+      dockerfile: Dockerfile_ServerVideo
+    container_name: gstreamer
+    ports:
+      - "5006:5000/udp"
+      - "5007:5001/udp"
+      - "5008:5002/udp"
+      - "5009:5003/udp"
+      - "5010:5004/udp"
+      - "5011:5005/udp"
+    devices:
+      # Permite al contenedor acceder a los dispositivos de video (ajusta la ruta de los dispositivos)
+      - "/dev/video0:/dev/video0"
+      - "/dev/video1:/dev/video1"
+      - "/dev/video2:/dev/video2"
+    volumes:
+      - ./gstreamer/start_gstreamer.sh:/Gstreamer/start_gstreamer.sh
+    restart: always
+
+  MiddlewareVideo:
+    image: bluenviron/mediamtx:latest
+    container_name: mediamtx
+    ports:
+      - 5000:5000/udp           # RTP cam1
+      - 5001:5001/udp           # RTCP cam1
+      - 5002:5002/udp           # RTP cam2
+      - 5003:5003/udp           # RTCP cam2
+      - 5004:5004/udp           # RTP cam3
+      - 5005:5005/udp           # RTCP cam3 
+      - 10002:10000/udp
+      - 10003:10001/udp
+      - 10004:10002/udp
+
+    volumes:
+      - ./mediamtx/mediamtx.yml:/etc/mediamtx.yml
+
+  front:  # Contenedor para tu aplicación PySide6 + GStreamer
+    build:
+      context: .  # Ruta al directorio con el Dockerfile
+      dockerfile: Dockerfile_ClientVideo
+    container_name: front
+    restart: unless-stopped
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=host.docker.internal:0.0
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+
+  db:
+    image: mariadb
+    container_name: ${DB_NAME}
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - 127.0.0.1:3310:3306
+
+volumes:
+  db:
