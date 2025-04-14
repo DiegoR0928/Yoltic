@@ -34,9 +34,9 @@ class ventanaVisualizacion(QWidget):
 
         # URIs de los streams RTP de las cámaras
         self.streams = [
-            "rtp://192.168.1.100:10000",  # Cámara 1
-            "rtp://192.168.1.100:10001",  # Cámara 2
-            "rtp://192.168.1.100:10003"   # Cámara 3
+            "rtsp://192.168.1.82:8554/cam1",  # Cámara 1
+            "rtp://192.168.1.82:10003",  # Cámara 2
+            "rtp://192.168.1.82:10004"   # Cámara 3
         ]
 
         # Inicializar pipelines

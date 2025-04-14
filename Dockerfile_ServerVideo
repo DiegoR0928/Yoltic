@@ -10,8 +10,11 @@ RUN apt-get update && apt-get upgrade -y && \
     build-essential \
     cmake \
     git \
+    ninja-build \
+    meson \
     wget \
     curl \
+    libx264-dev \
     libssl-dev \
     pkg-config \
     libglib2.0-dev \
@@ -21,6 +24,7 @@ RUN apt-get update && apt-get upgrade -y && \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
     gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav \
     libusb-1.0-0-dev \
     libopencv-dev \
@@ -58,13 +62,20 @@ gstreamer1.0-plugins-bad \
 gstreamer1.0-tools \
 libgstreamer1.0-dev
 
+# 2. Clonar el repo
+WORKDIR /opt
+RUN git clone https://github.com/WKDSMRT/realsense-gstreamer.git
+
+# 3. Compilar con meson + ninja
+WORKDIR /opt/realsense-gstreamer
+RUN meson setup builddir --prefix=/usr && \
+    ninja -C builddir && \
+    ninja -C builddir install
+
+WORKDIR /gstreamer
 
 # Copiar scripts o archivos de configuración (si se necesitan)
-COPY ./gstreamer/start_gstreamer.sh /start_gstreamer.sh
-RUN chmod +x /start_gstreamer.sh
+COPY ./gstreamer/start_gstreamer.sh /gstreamer/start_gstreamer.sh
+RUN chmod +x /gstreamer/start_gstreamer.sh
 
-# Establecer el directorio de trabajo
-WORKDIR /GStreamer
-
-# Puertos para RTP y RTCP
-EXPOSE 5000 5001 5002 5003 5004 5005
+ENTRYPOINT ["/gstreamer/start_gstreamer.sh"]
