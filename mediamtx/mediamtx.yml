@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+# Desactiva interfaces que no necesitas (opcional pero recomendable para este uso)
+>>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796
 rtmp: no
 hls: no
 webrtc: no
 srt: no
 rtsp: yes
 
+<<<<<<< HEAD
 rtspTransports: [udp, tcp]
 
 rtpAdress: 8000
@@ -12,3 +17,11 @@ rtpAdress: 8000
 paths: 
   cam1: 
     source: udp://:9000
+=======
+rtspProtocols: [udp, tcp]
+
+# Configura la ruta donde MediaMTX recibirá el stream por UDP y lo publicará como RTSP
+paths:
+  cam1:
+    source: udp://:9000
+>>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796

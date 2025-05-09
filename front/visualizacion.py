@@ -32,11 +32,20 @@ class ventanaVisualizacion(QWidget):
         # Inicializar GStreamer
         Gst.init(None)
 
+<<<<<<< HEAD
         # Configurar solo la primera cámara por ahora
         self.pipeline = Gst.parse_launch(
             'rtspsrc location=rtsp://192.168.1.105:8554/cam1 protocols=udp+tcp ! '
             'rtph264depay ! avdec_h264 ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink sync=false max-buffers=1 drop=true'
         )
+=======
+        # URIs de los streams RTP de las cámaras
+        self.streams = [
+            "rtsp://192.168.1.82:8554/cam1",  # Cámara 1
+            "rtp://192.168.1.82:10003",  # Cámara 2
+            "rtp://192.168.1.82:10004"   # Cámara 3
+        ]
+>>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796
 
         self.appsink = self.pipeline.get_by_name("sink")
         self.appsink.set_property("emit-signals", True)
@@ -94,5 +103,12 @@ class ventanaVisualizacion(QWidget):
         return Gst.FlowReturn.OK
 
     def closeEvent(self, event):
+<<<<<<< HEAD
         self.pipeline.set_state(Gst.State.NULL)
         event.accept()
+=======
+        # Detener todos los pipelines cuando se cierra la ventana
+        for pipeline in self.pipelines:
+            pipeline.set_state(Gst.State.NULL)
+        event.accept()
+>>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796
