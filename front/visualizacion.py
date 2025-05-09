@@ -1,85 +1,98 @@
 import sys
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout
+import threading
+import numpy as np
+from PySide6.QtCore import Qt, QTimer, Slot
+from PySide6.QtGui import QImage, QPixmap, QIcon
+from PySide6.QtWidgets import QApplication, QLabel, QWidget, QHBoxLayout
 import gi
 gi.require_version('Gst', '1.0')
-gi.require_version('GstVideo', '1.0')
-from gi.repository import Gst
+from gi.repository import Gst, GLib
 
 class ventanaVisualizacion(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Visualización de Cámaras")
-        self.setGeometry(40, 40, 1200, 600)
-        self.setWindowIcon(QIcon('../logo.png'))
+        self.setWindowTitle("Visualizacion Yoltic")
+        self.setGeometry(100, 100, 1200, 480)
+        self.setWindowIcon(QIcon("./logo.png"))
 
-        # Layout principal
-        layout = QHBoxLayout()
+        # Crear layout horizontal para las tres cámaras
+        self.layout = QHBoxLayout()
+        self.setLayout(self.layout)
 
-        # Crear etiquetas de visualización
-        self.video_widgets = []
+        # Crear tres QLabel (una por cámara)
+        self.labels = []
         for i in range(3):
-            label = QLabel(f"Cámara {i+1}")
+            label = QLabel(f"Esperando video cámara {i+1}...")
             label.setAlignment(Qt.AlignCenter)
-            label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            self.video_widgets.append(label)
-            layout.addWidget(label)
-
-        self.setLayout(layout)
+            label.setStyleSheet("background-color: black; color: white;")
+            self.labels.append(label)
+            self.layout.addWidget(label)
 
         # Inicializar GStreamer
         Gst.init(None)
 
-        # URIs de los streams RTP de las cámaras
-        self.streams = [
-            "rtp://192.168.1.100:10000",  # Cámara 1
-            "rtp://192.168.1.100:10001",  # Cámara 2
-            "rtp://192.168.1.100:10003"   # Cámara 3
-        ]
+        # Configurar solo la primera cámara por ahora
+        self.pipeline = Gst.parse_launch(
+            'rtspsrc location=rtsp://192.168.1.105:8554/cam1 protocols=udp+tcp ! '
+            'rtph264depay ! avdec_h264 ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink sync=false max-buffers=1 drop=true'
+        )
 
-        # Inicializar pipelines
-        self.pipelines = []
-        self.video_sinks = []
+        self.appsink = self.pipeline.get_by_name("sink")
+        self.appsink.set_property("emit-signals", True)
+        self.appsink.connect("new-sample", self.on_new_sample)
 
-        # Crear pipelines para cada cámara
-        for idx, stream_uri in enumerate(self.streams):
-            # Crear un pipeline para cada cámara
-            pipeline = Gst.Pipeline.new(f"pipeline{idx}")
-            playbin = Gst.ElementFactory.make("playbin", f"playbin{idx}")
-            playbin.set_property("uri", stream_uri)
+        # Iniciar el pipeline en un hilo separado
+        threading.Thread(target=self._run_pipeline, daemon=True).start()
 
-            # Crear video sink (QVideoWidget)
-            videosink = Gst.ElementFactory.make("qt6videosink", None)
+    def _run_pipeline(self):
+        self.pipeline.set_state(Gst.State.PLAYING)
+        bus = self.pipeline.get_bus()
+        while True:
+            msg = bus.timed_pop_filtered(
+                Gst.SECOND,
+                Gst.MessageType.ERROR | Gst.MessageType.EOS | Gst.MessageType.WARNING
+            )
 
-            # Asignar el video sink al playbin
-            playbin.set_property("video-sink", videosink)
+            if msg:
+                if msg.type == Gst.MessageType.ERROR:
+                    err, debug = msg.parse_error()
+                    print(f"Error de GStreamer: {err}, {debug}")
+                    break
+                elif msg.type == Gst.MessageType.WARNING:
+                    warn, debug = msg.parse_warning()
+                    print(f"Advertencia de GStreamer: {warn}, {debug}")
+                elif msg.type == Gst.MessageType.EOS:
+                    print("Fin del stream.")
+                    break
 
-            # Añadir el playbin al pipeline
-            pipeline.add(playbin)
+    @Slot()
+    def on_new_sample(self, sink):
+        sample = sink.emit("pull-sample")
+        if not sample:
+            return Gst.FlowReturn.ERROR
 
-            # Guardar el video sink para mostrar el video en la interfaz
-            self.video_sinks.append(videosink)
+        buffer = sample.get_buffer()
+        caps = sample.get_caps()
+        width = caps.get_structure(0).get_value('width')
+        height = caps.get_structure(0).get_value('height')
 
-            # Iniciar el pipeline
-            pipeline.set_state(Gst.State.PLAYING)
+        success, map_info = buffer.map(Gst.MapFlags.READ)
+        if not success:
+            return Gst.FlowReturn.ERROR
 
-            # Guardar el pipeline en la lista
-            self.pipelines.append(pipeline)
+        try:
+            frame = np.frombuffer(map_info.data, np.uint8).reshape((height, width, 3))
+            image = QImage(frame.data, width, height, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(image)
 
-        # Timer para actualizar las imágenes
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_frame)
-        self.timer.start(30)
+            # Mostrar en la cámara 1
+            self.labels[0].setPixmap(pixmap.scaled(self.labels[0].size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        finally:
+            buffer.unmap(map_info)
 
-    def update_frame(self):
-        # Aquí se puede implementar lógica para actualizar las imágenes si es necesario
-        # Actualmente, GStreamer gestiona la visualización automáticamente a través de los sinks.
-        pass
+        return Gst.FlowReturn.OK
 
     def closeEvent(self, event):
-        # Detener todos los pipelines cuando se cierra la ventana
-        for pipeline in self.pipelines:
-            pipeline.set_state(Gst.State.NULL)
+        self.pipeline.set_state(Gst.State.NULL)
         event.accept()

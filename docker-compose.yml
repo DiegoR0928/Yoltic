@@ -4,56 +4,65 @@ services:
       context: .  # Ruta al directorio con el Dockerfile
       dockerfile: Dockerfile_ServerVideo
     container_name: gstreamer
-    ports:
-      - "5006:5000/udp"
-      - "5007:5001/udp"
-      - "5008:5002/udp"
-      - "5009:5003/udp"
-      - "5010:5004/udp"
-      - "5011:5005/udp"
+#    ports:
+     # - "5006:5000/udp"
+     # - "5007:5001/udp"
+     # - "5008:5002/udp"
+     # - "5009:5003/udp"
+     # - "5010:5004/udp"
+     # - "5011:5005/udp"
     devices:
       # Permite al contenedor acceder a los dispositivos de video (ajusta la ruta de los dispositivos)
-      - "/dev/video0:/dev/video0"
-      - "/dev/video1:/dev/video1"
-      - "/dev/video2:/dev/video2"
+      - /dev/bus/usb/002/004:/dev/bus/usb/002/004
+      - /dev/bus/usb/002/005:/dev/bus/usb/002/005
+      - /dev/bus/usb/003/002:/dev/bus/usb/003/002
     volumes:
       - ./gstreamer/start_gstreamer.sh:/Gstreamer/start_gstreamer.sh
-    restart: always
-
-  MiddlewareVideo:
+    restart: no
+    network_mode: "host"
+    privileged: true
+  
+  mediamtx:
     image: bluenviron/mediamtx:latest
     container_name: mediamtx
-    ports:
-      - 5000:5000/udp           # RTP cam1
-      - 5001:5001/udp           # RTCP cam1
-      - 5002:5002/udp           # RTP cam2
-      - 5003:5003/udp           # RTCP cam2
-      - 5004:5004/udp           # RTP cam3
-      - 5005:5005/udp           # RTCP cam3 
-      - 10002:10000/udp
-      - 10003:10001/udp
-      - 10004:10002/udp
-
+ #   ports:
+      #- 5000:5000/udp           # RTP cam1
+      #- 5001:5001/udp           # RTCP cam1
+      #- 5002:5002/udp           # RTP cam2
+      #- 5003:5003/udp           # RTCP cam2
+      #- 5004:5004/udp           # RTP cam3
+      #- 5005:5005/udp           # RTCP cam3 
+      #- 8554:8554
     volumes:
-      - ./mediamtx/mediamtx.yml:/etc/mediamtx.yml
-
-  front:  # Contenedor para tu aplicación PySide6 + GStreamer
-    build:
-      context: .  # Ruta al directorio con el Dockerfile
-      dockerfile: Dockerfile_ClientVideo
-    container_name: front
-    restart: unless-stopped
-    ports:
-      - 10000:10000
-      - 10001:10001
-      - 10002:10002
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    environment:
-      - DISPLAY=192.168.1.74:0.0
+      - ./mediamtx/mediamtx.yml:/mediamtx.yml
     network_mode: "host"
-    stdin_open: true
-    tty: true
+ 
+  front_web:
+      build:
+        context: .
+        dockerfile: ./Dockerfile_ClienteWeb
+      container_name: front_web
+      depends_on:
+        - db
+      ports:
+        - 8000:8000
+        - 5000:5000
+        - 9000:9000
+        - 8001:8001
+        - 5005:5005
+      volumes:
+        - ./front_web:/front_web
+
+      environment:
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+        DB_USER_ADMIN: ${DB_USER_ADMIN}
+
+        DB_HOST: ${DB_HOST}
+        DEBUG: ${DEBUG}
+        SECRET_KEY: ${SECRET_KEY}
 
   db:
     image: mariadb

@@ -1,55 +1,33 @@
-# Imagen base con mejor soporte para GUI y GStreamer
-FROM debian:bookworm
+FROM debian:bookworm-slim
 
-# Evitar prompts de configuración
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
-    python3 python3-pip \
-    python3-gi python3-gi-cairo \
-    gir1.2-gtk-3.0 \
-    gir1.2-gstreamer-1.0 \
-    gir1.2-gst-plugins-base-1.0 \
-    libglib2.0-dev libgstreamer1.0-dev \
-    gstreamer1.0-tools \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-qt6 \
-    libxcb-xinerama0 \
-    libx11-dev \
-    libxcb-cursor0 \
-    xvfb \
-    libxcb-xkb1 \
-    libx11-dev \
-    libqt6widgets6 libqt6gui6 \
-    libcairo2-dev libxt-dev libgirepository1.0-dev \
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y \
+    apache2 \
+    python3 \
+    python3-pip \
+    python3-dev \
     python3-venv \
+    libmariadb-dev \
+    libapache2-mod-wsgi-py3 \
     pkg-config \
-    cmake \
-    && rm -rf /var/lib/apt/lists/*
+    gstreamer1.0-tools gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly gstreamer1.0-libav \
+    gcc 
 
-# Crear directorio de trabajo
-WORKDIR /front
+# Configure timezone
+ENV TZ=America/Mexico_City
+RUN ln -snf  /etc/l/usr/share/zoneinfo/$TZocaltime && echo $TZ > /etc/timezone
 
-# Crear y activar el entorno virtual
+WORKDIR /front_web
+
 RUN python3 -m venv /env
 RUN . /env/bin/activate
 
+#RUN mkdir /app/media && chown :www-data /app/media -R && chmod 775 /app/media -R
 RUN /env/bin/pip install --upgrade pip
-
-# Copiar tus archivos al contenedor
-COPY ./front/comando.py /front/
-COPY ./front/main.py /front/
-COPY ./front/monitoreo.py /front/
-COPY ./front/visualizacion.py /front/
-COPY ./front/Logo.png /front/
-
-# Instalar dependencias de Python
-RUN /env/bin/pip install --no-cache-dir PySide6
-RUN /env/bin/pip install --no-cache-dir PyGObject==3.50.0
-
-# Hacer ejecutable el script principal
-RUN chmod +x main.py
+RUN /env/bin/pip install --no-cache-dir Django==5.1
+RUN /env/bin/pip install --no-cache-dir mysqlclient==2.2.4
+RUN /env/bin/pip install --no-cache-dir channels
+RUN /env/bin/pip install --no-cache-dir daphne
+RUN /env/bin/pip install --no-cache-dir whitenoise

@@ -1,26 +1,14 @@
-# Protocolo UDP para recibir los flujos de video
-protocols: [udp]
+rtmp: no
+hls: no
+webrtc: no
+srt: no
+rtsp: yes
 
-# Puertos donde MediaMTX recibirá los flujos de video
-rtp:
-  udp:
-    enabled: yes
-    # Puertos de ENTRADA (cámaras)
-    listen: :5000  # Cámara 1
-    listen: :5001  # Cámara 2
-    listen: :5002  # Cámara 3
+rtspTransports: [udp, tcp]
 
-# Configuración de las cámaras
-paths:
-  cam1:
-    source: udp://:5000    # Recibe video de la cámara 1
-    sourceProtocol: udp
-    rtpPort: 10000
-  cam2:
-    source: udp://:5001    # Recibe video de la cámara 2
-    sourceProtocol: udp
-    rtpPort: 10001
-  cam3:
-    source: udp://:5002    # Recibe video de la cámara 3
-    sourceProtocol: udp
-    rtpPort: 10002
+rtpAdress: 8000
+
+# Configurar la ruta donde MediaMTX
+paths: 
+  cam1: 
+    source: udp://:9000

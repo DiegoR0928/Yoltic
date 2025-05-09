@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && \
     git \
     wget \
     curl \
+    libx264-dev \
     libssl-dev \
     pkg-config \
     libglib2.0-dev \
@@ -21,6 +22,7 @@ RUN apt-get update && apt-get upgrade -y && \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
     gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav \
     libusb-1.0-0-dev \
     libopencv-dev \
@@ -43,14 +45,6 @@ RUN apt-get update && apt-get install -y gnupg
 
 RUN apt-get install -y software-properties-common
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \ 
-    --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \ 
-    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
-    && apt-get install -y librealsense2-utils \
-    && apt-get install -y librealsense2-dev \
-    && apt-get install -y librealsense2-dkms
-
 RUN apt-get update && apt-get install -y \
 gstreamer1.0-plugins-base \
 gstreamer1.0-plugins-good \
@@ -58,13 +52,8 @@ gstreamer1.0-plugins-bad \
 gstreamer1.0-tools \
 libgstreamer1.0-dev
 
-
 # Copiar scripts o archivos de configuración (si se necesitan)
-COPY ./gstreamer/start_gstreamer.sh /start_gstreamer.sh
-RUN chmod +x /start_gstreamer.sh
+COPY ./gstreamer/start_gstreamer.sh /gstreamer/start_gstreamer.sh
+RUN chmod +x /gstreamer/start_gstreamer.sh
 
-# Establecer el directorio de trabajo
-WORKDIR /GStreamer
-
-# Puertos para RTP y RTCP
-EXPOSE 5000 5001 5002 5003 5004 5005
+ENTRYPOINT ["/gstreamer/start_gstreamer.sh"]
