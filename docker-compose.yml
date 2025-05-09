@@ -14,12 +14,8 @@ services:
     devices:
       # Permite al contenedor acceder a los dispositivos de video (ajusta la ruta de los dispositivos)
       - /dev/bus/usb/002/004:/dev/bus/usb/002/004
-<<<<<<< HEAD
       - /dev/bus/usb/002/005:/dev/bus/usb/002/005
       - /dev/bus/usb/003/002:/dev/bus/usb/003/002
-=======
-      #- "/dev/video1:/dev/video1"
->>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796
     volumes:
       - ./gstreamer/start_gstreamer.sh:/Gstreamer/start_gstreamer.sh
     restart: no
@@ -39,25 +35,6 @@ services:
       #- 8554:8554
     volumes:
       - ./mediamtx/mediamtx.yml:/mediamtx.yml
-<<<<<<< HEAD
-=======
-    network_mode: "host"
- 
-  front:  # Contenedor para tu aplicación PySide6 + GStreamer
-    build:
-      context: .  # Ruta al directorio con el Dockerfile
-      dockerfile: Dockerfile_ClientVideo
-    container_name: front
-    restart: unless-stopped
-  #  ports:
-      #- 10000:10000
-      #- 10001:10001
-      #- 10002:10002
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    environment:
-      - DISPLAY=192.168.1.74:0.0
->>>>>>> 03022cd939abe2f3f7bc1d77299404bf0b988796
     network_mode: "host"
  
   front_web:
