@@ -31,3 +31,5 @@ RUN /env/bin/pip install --no-cache-dir mysqlclient==2.2.4
 RUN /env/bin/pip install --no-cache-dir channels
 RUN /env/bin/pip install --no-cache-dir daphne
 RUN /env/bin/pip install --no-cache-dir whitenoise
+
+CMD [ "apachectl", "-D", "FOREGROUND" ]

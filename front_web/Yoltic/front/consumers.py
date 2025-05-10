@@ -38,54 +38,101 @@ class MjpegStreamConsumer(AsyncHttpConsumer):
         ]
         await self.send_headers(headers=self.response_headers)
 
-        reader, writer = await asyncio.open_connection('127.0.0.1', 5000)
-        logging.info("Conectado a GStreamer en 127.0.0.1:5000")
+        self._active_tasks = set()
+        self.protocol = MJPEGProtocol(self.send_frame_safe, self._active_tasks)
+        self.transport = None
 
         try:
-            buffer = b''
-            while True:
-                data = await reader.read(4096)
-                if not data:
-                    logging.error("No hay datos del stream, terminando conexión.")
-                    break
+            loop = asyncio.get_running_loop()
+            self.transport, _ = await loop.create_datagram_endpoint(
+                lambda: self.protocol,
+                local_addr=('0.0.0.0', 5000)  # AJUSTA el puerto según sea necesario
+            )
+            logging.info("Esperando video MJPEG por UDP en 0.0.0.0:5000")
 
-                buffer += data
-                
-                # Buscar marcadores de inicio/fin de JPEG (0xFFD8 y 0xFFD9)
-                start_marker = b'\xff\xd8'
-                end_marker = b'\xff\xd9'
-                
-                while True:
-                    start_pos = buffer.find(start_marker)
-                    if start_pos == -1:
-                        buffer = b''
-                        break
-                    
-                    end_pos = buffer.find(end_marker, start_pos)
-                    if end_pos == -1:
-                        break
-                    
-                    # Extraer frame JPEG completo
-                    jpeg_frame = buffer[start_pos:end_pos+2]
-                    buffer = buffer[end_pos+2:]
-                    
-                    # Construir y enviar parte del MJPEG
-                    boundary = b'--frame\r\n'
-                    content_type = b'Content-Type: image/jpeg\r\n\r\n'
-                    frame_data = boundary + content_type + jpeg_frame + b'\r\n'
-                    
-                    try:
-                        await self.send_body(frame_data, more_body=True)
-                        logging.debug(f"[STREAM] Enviado frame de {len(jpeg_frame)} bytes")
-                    except Exception as send_error:
-                        logging.error(f"Error al enviar frame: {send_error}")
-                        raise
-                    
-                await asyncio.sleep(0.01)
-                
+            while not self.protocol.done:
+                await asyncio.sleep(1)
+
+        except asyncio.CancelledError:
+            logging.info("Stream cancelado por el cliente.")
         except Exception as e:
             logging.error(f"Error en MJPEG stream: {e}")
         finally:
-            writer.close()
-            await writer.wait_closed()
-            logging.info("Conexión cerrada.")
+            await self.cleanup()
+
+    async def send_frame_safe(self, frame_data):
+        try:
+            await self.send_body(frame_data, more_body=True)
+        except Exception as e:
+            logging.error(f"Error enviando frame: {e}")
+            self.protocol.done = True
+
+    async def cleanup(self):
+        if self.transport:
+            self.transport.close()
+        self.protocol.done = True
+        for task in self._active_tasks:
+            task.cancel()
+        if self._active_tasks:
+            await asyncio.wait(self._active_tasks)
+        logging.info("MJPEG stream limpiado completamente.")
+
+
+class MJPEGProtocol:
+    def __init__(self, send_frame, active_tasks):
+        self.send_frame = send_frame
+        self._active_tasks = active_tasks
+        self.buffer = b""
+        self.done = False
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
+
+    def datagram_received(self, data, addr):
+        print(f"UDP packet recibido: {len(data)} bytes")
+        try:
+            self.buffer += data
+
+            # Protege contra buffers demasiado grandes
+            if len(self.buffer) > 10_000_000:
+                logging.warning("Buffer demasiado grande, limpiando.")
+                self.buffer = b""
+
+            start_marker = b'\xff\xd8'
+            end_marker = b'\xff\xd9'
+
+            while True:
+                start_pos = self.buffer.find(start_marker)
+                if start_pos == -1:
+                    self.buffer = b''
+                    break
+
+                end_pos = self.buffer.find(end_marker, start_pos)
+                if end_pos == -1:
+                    break
+
+                jpeg_frame = self.buffer[start_pos:end_pos + 2]
+                self.buffer = self.buffer[end_pos + 2:]
+
+                boundary = b'--frame\r\n'
+                content_type = b'Content-Type: image/jpeg\r\n\r\n'
+                frame_data = boundary + content_type + jpeg_frame + b'\r\n'
+
+                task = asyncio.create_task(self.send_frame(frame_data))
+                task.add_done_callback(self._remove_task)
+                self._active_tasks.add(task)
+
+        except Exception as e:
+            logging.error(f"Error procesando datagrama UDP: {e}")
+            self.done = True
+
+    def _remove_task(self, task):
+        self._active_tasks.discard(task)
+
+    def connection_lost(self, exc):
+        self.done = True
+        if exc:
+            logging.error(f"Conexión UDP perdida: {exc}")
+        else:
+            logging.info("Conexión UDP cerrada normalmente.")

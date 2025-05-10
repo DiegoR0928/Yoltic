@@ -21,6 +21,18 @@ services:
     restart: no
     network_mode: "host"
     privileged: true
+
+  cliente_comandos:
+    build:
+      context: .  # Directorio actual para construir la imagen
+      dockerfile: Dockerfile_ClientComandos  # Especifica el Dockerfile a usar (puedes omitir esto si el archivo se llama 'Dockerfile')
+    container_name: cliente_comandos
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"  # Mapea el puerto serial del host al contenedor (ajusta según tu dispositivo)
+    #ports:
+      #- "5005:5005/udp"  # Mapea el puerto UDP
+    network_mode: "host"
+    restart: always  
   
   mediamtx:
     image: bluenviron/mediamtx:latest
@@ -40,18 +52,19 @@ services:
   front_web:
       build:
         context: .
-        dockerfile: ./Dockerfile_ClienteWeb
+        dockerfile: ./Dockerfile_ClientVideo
       container_name: front_web
       depends_on:
         - db
-      ports:
-        - 8000:8000
-        - 5000:5000
-        - 9000:9000
-        - 8001:8001
-        - 5005:5005
+#      ports:
+       # - 8000:8000
+       # - 5000:5000
+       # - 9000:9000
+       # - 8001:8001
+       # - 5005:5005
       volumes:
         - ./front_web:/front_web
+      network_mode: "host"
 
       environment:
         DB_NAME: ${DB_NAME}

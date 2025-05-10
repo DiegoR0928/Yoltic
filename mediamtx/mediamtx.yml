@@ -5,11 +5,13 @@ webrtc: no
 srt: no
 rtsp: yes
 
-rtspTransports: [udp, tcp]
+rtspTransports: [udp]
 
-rtpAdress: 8000
+rtpAddress: :8000
 
-# Configurar la ruta donde MediaMTX
-paths: 
-  cam1: 
+# Configura la ruta donde MediaMTX recibirá el stream por UDP y lo publicará como RTSP
+paths:
+  cam1:
     source: udp://:9000
+  cam2:
+    source: udp://:9001

@@ -1,0 +1,21 @@
+# Usamos una imagen base con Python 3
+FROM python:3.8-slim
+
+# Instalamos dependencias necesarias para acceder al puerto serial
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    libudev-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalamos la librería pyserial para el acceso al puerto serial
+RUN pip install pyserial
+
+# Establecemos el directorio de trabajo
+WORKDIR /cliente_comandos
+
+# Copiamos el código al contenedor
+COPY . /cliente_comandos
+
+# Comando para ejecutar tu script de Python
+CMD ["python3", "cliente_comandos/cliente_comandos.py"]
