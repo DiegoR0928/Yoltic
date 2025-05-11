@@ -90,7 +90,6 @@ class MJPEGProtocol:
         self.transport = transport
 
     def datagram_received(self, data, addr):
-        print(f"UDP packet recibido: {len(data)} bytes")
         try:
             self.buffer += data
 
@@ -136,3 +135,54 @@ class MJPEGProtocol:
             logging.error(f"Conexión UDP perdida: {exc}")
         else:
             logging.info("Conexión UDP cerrada normalmente.")
+
+
+class MjpegStreamConsumer2(AsyncHttpConsumer):
+    async def handle(self, body):
+        self.response_headers = [
+            (b"Content-Type", b"multipart/x-mixed-replace; boundary=frame"),
+            (b"Cache-Control", b"no-cache, no-store, must-revalidate"),
+            (b"Pragma", b"no-cache"),
+            (b"Expires", b"0"),
+        ]
+        await self.send_headers(headers=self.response_headers)
+
+        self._active_tasks = set()
+        self.protocol = MJPEGProtocol(self.send_frame_safe, self._active_tasks)
+        self.transport = None
+
+        try:
+            loop = asyncio.get_running_loop()
+            self.transport, _ = await loop.create_datagram_endpoint(
+                lambda: self.protocol,
+                local_addr=('0.0.0.0', 5001)  # AJUSTA el puerto según sea necesario
+            )
+            logging.info("Esperando video MJPEG por UDP en 0.0.0.0:5000")
+
+            while not self.protocol.done:
+                await asyncio.sleep(1)
+
+        except asyncio.CancelledError:
+            logging.info("Stream cancelado por el cliente.")
+        except Exception as e:
+            logging.error(f"Error en MJPEG stream: {e}")
+        finally:
+            await self.cleanup()
+
+    async def send_frame_safe(self, frame_data):
+        try:
+            await self.send_body(frame_data, more_body=True)
+        except Exception as e:
+            logging.error(f"Error enviando frame: {e}")
+            self.protocol.done = True
+
+    async def cleanup(self):
+        if self.transport:
+            self.transport.close()
+        self.protocol.done = True
+        for task in self._active_tasks:
+            task.cancel()
+        if self._active_tasks:
+            await asyncio.wait(self._active_tasks)
+        logging.info("MJPEG stream limpiado completamente.")
+

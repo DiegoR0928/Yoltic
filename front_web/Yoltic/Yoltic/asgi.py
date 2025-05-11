@@ -6,7 +6,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.middleware import BaseMiddleware
 from django.urls import path, re_path
-from front.consumers import JoystickConsumer, MjpegStreamConsumer
+from front.consumers import JoystickConsumer, MjpegStreamConsumer, MjpegStreamConsumer2
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Yoltic.settings')
 django_asgi_app = get_asgi_application()
@@ -55,7 +55,8 @@ application = ProtocolTypeRouter({
             MJPEGStreamMiddleware(
                 URLRouter([
                     path("mjpeg1/", MjpegStreamConsumer.as_asgi()),
-                    re_path(r"^static/", django_asgi_app),
+                    path("mjpeg2/", MjpegStreamConsumer2.as_asgi()),
+		    re_path(r"^static/", django_asgi_app),
                     re_path(r"", django_asgi_app),
                 ])
             )
