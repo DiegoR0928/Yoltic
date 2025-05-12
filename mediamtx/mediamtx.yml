@@ -15,3 +15,5 @@ paths:
     source: udp://:9000
   cam2:
     source: udp://:9001
+  cam3:
+    source: udp://:9002
