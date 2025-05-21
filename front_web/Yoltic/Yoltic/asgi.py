@@ -6,7 +6,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.middleware import BaseMiddleware
 from django.urls import path, re_path
-from front.consumers import JoystickConsumer, MjpegStreamConsumer, MjpegStreamConsumer2, MjpegStreamConsumer3
+from front.consumers import JoystickConsumer, MjpegStreamConsumer, MjpegStreamConsumer2, MjpegStreamConsumer3, MonitoreoConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Yoltic.settings')
 django_asgi_app = get_asgi_application()
@@ -67,7 +67,27 @@ application = ProtocolTypeRouter({
         ConnectionCleanupMiddleware(
             URLRouter([
                 path("ws/joystick/", JoystickConsumer.as_asgi()),
+                path("ws/monitoreo/", MonitoreoConsumer.as_asgi()),
             ])
         )
     ),
 })
+
+from front.live_pipeline import LivePipeline
+import threading
+
+live_pipelines = {
+    1: LivePipeline("rtsp://192.168.1.74:8554/cam1", 5000),
+    2: LivePipeline("rtsp://192.168.1.74:8554/cam2", 5001),
+    3: LivePipeline("rtsp://192.168.1.74:8554/cam3", 5002)
+}
+
+def init_pipelines():
+    try:
+        print("corriendo de asgi")
+        for pipeline in live_pipelines.values():
+            pipeline.start()
+    except Exception as e:
+        print("Error iniciando pipelines:", e)
+
+threading.Thread(target=init_pipelines, daemon=True).start()

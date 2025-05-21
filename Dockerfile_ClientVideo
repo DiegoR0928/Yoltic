@@ -6,10 +6,14 @@ RUN apt-get install -y \
     python3 \
     python3-pip \
     python3-dev \
+    build-essential pkg-config \
+    libcairo2-dev \
     python3-venv \
     libmariadb-dev \
     libapache2-mod-wsgi-py3 \
     pkg-config \
+    python3-gi libgirepository1.0-dev \
+    gir1.2-gstreamer-1.0 python3-gst-1.0 \
     gstreamer1.0-tools gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
     gstreamer1.0-plugins-ugly gstreamer1.0-libav \
@@ -29,7 +33,10 @@ RUN /env/bin/pip install --upgrade pip
 RUN /env/bin/pip install --no-cache-dir Django==5.1
 RUN /env/bin/pip install --no-cache-dir mysqlclient==2.2.4
 RUN /env/bin/pip install --no-cache-dir channels
+RUN /env/bin/pip install --no-cache-dir channels_redis
 RUN /env/bin/pip install --no-cache-dir daphne
 RUN /env/bin/pip install --no-cache-dir whitenoise
+RUN /env/bin/pip install --no-cache-dir PyGObject==3.50
 
 CMD [ "apachectl", "-D", "FOREGROUND" ]
+

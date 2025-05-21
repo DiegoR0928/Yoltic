@@ -3,59 +3,110 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
+    background-color: #8E8868;
   }
 
-  .half-height {
-    height: 50vh;
-  }
-
-  .camera-box {
-  height: 100%;
-  padding: 0;
-  overflow: hidden;
-  border: 2px solid #222; /* Borde elegante oscuro */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Sombra suave */
-  background-color: black; /* Para evitar huecos al redondear */
+.half-height {
+  height: 50vh;
 }
 
-video {
+.camera-box {
+  height: 50vh;
+  padding: 0;
+  overflow: hidden;
+  border-left: 1.5px solid #222; /* Borde elegante oscuro */
+  border-right: 1.5px solid #222; /* Borde elegante oscuro */
+  border-bottom: 4px solid #222; /* Borde elegante oscuro */
+  background-color: black; /* Para evitar huecos al redondear */
+  }
+
+.video-juntas{
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; 
   display: block;
 }
 
+.hover:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    12px 12px 24px #3e4230,
+    -12px -12px 24px #6a7152;
+}
+
+.video-ajustado {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
+  display: block;
+}
+
+#contenedor-camaras {
+  height: auto;
+  transition: height 0.3s ease;
+}
+
+#btn-volver {
+  display: none; 
+  margin-top: 5px;
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #8E8868;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000; /* Asegura que esté encima de otros elementos */
+}
 
 .control-box {
-    background-color: #4B5320;
+    background-color: #8E8868;
     height: 100%;
     border-right: 2px solid black;
-
-
+    padding-top: 15px;
 }
   .wait-box {
-    background-color: #f8f9fa;
+    background-color: #8E8868;
     height: 100%;
     border-right: 2px solid black;
   }
 
-  #gamepad {
-    width: 200px;
-    height: 200px;
-    background: #333;
-    margin: auto;
-    border-radius: 20px;
-    position: relative;
-  }
+#gamepad {
+  width: 200px;
+  height: 200px;
+  background: #52583F; 
+  margin: auto;
+  border-radius: 20px;
+  position: relative;
 
-  #stick-left {
-    width: 40px;
-    height: 40px;
-    background: red;
-    border-radius: 50%;
-    position: absolute;
-    left: 75px;
-    top: 80px;
-    transform: translate(0, 0);
-    transition: transform 0.05s linear;
-  }
+  box-shadow:
+    8px 8px 16px #3e4230;  
+  border: 1px solid #41462f;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+#joy-status {
+  padding-top: 15px;
+}
+
+#stick-left {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at 30% 30%, #5a3d38, #2a1d1a);
+  border-radius: 50%;
+  position: absolute;
+  left: 80px;
+  top: 75px;
+  transform: translate(0, 0);
+  transition: transform 0.05s linear;
+
+  box-shadow:
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1),  
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),           
+    4px 4px 10px rgba(0, 0, 0, 0.4);                
+  border: 2px solid #1e1514;
+}
+
+.icono-grande {
+  font-size: 5rem !important;
+  padding: 2%;
+}

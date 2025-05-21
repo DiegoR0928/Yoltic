@@ -1,19 +1,20 @@
 # app/consumers.py
 import json
 import socket
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.generic.http import AsyncHttpConsumer
 import asyncio
 import logging
+import time
 
-class JoystickConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class JoystickConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         try:
             data = json.loads(text_data)
             x = data.get('x')
@@ -22,120 +23,146 @@ class JoystickConsumer(WebsocketConsumer):
                 UDP_IP = "192.168.1.83"
                 UDP_PORT = 5005
                 mensaje = f"{x},{y}"
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.sendto(mensaje.encode('utf-8'), (UDP_IP, UDP_PORT))
+                # Enviar el paquete UDP de forma no bloqueante usando asyncio
+                await asyncio.get_running_loop().run_in_executor(
+                    None,
+                    self.enviar_udp,
+                    mensaje,
+                    UDP_IP,
+                    UDP_PORT
+                )
                 print(f"Enviado: {mensaje} a {UDP_IP}:{UDP_PORT}")
         except Exception as e:
             print("Error:", e)
 
+    def enviar_udp(self, mensaje, ip, puerto):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(mensaje.encode('utf-8'), (ip, puerto))
+        sock.close()
+
 class MjpegStreamConsumer(AsyncHttpConsumer):
     async def handle(self, body):
-        self.response_headers = [
+        # Obtener el ID de la cámara de los parámetros de la ruta
+        self.camera_id = self.scope['url_route']['kwargs'].get('camera_id', 1)
+        self.udp_port = 5000 + int(self.camera_id) - 1  # 5000, 5001 o 5002
+        
+        print(f"🎥 Iniciando stream para cámara {self.camera_id} en puerto {self.udp_port}")
+        
+        self._active = True
+        self._tasks = set()
+        
+        await self.send_headers(headers=[
             (b"Content-Type", b"multipart/x-mixed-replace; boundary=frame"),
             (b"Cache-Control", b"no-cache, no-store, must-revalidate"),
             (b"Pragma", b"no-cache"),
             (b"Expires", b"0"),
-        ]
-        await self.send_headers(headers=self.response_headers)
-
-        self._active_tasks = set()
-        self.protocol = MJPEGProtocol(self.send_frame_safe, self._active_tasks)
-        self.transport = None
+            (b"Access-Control-Allow-Origin", b"*")
+        ])
 
         try:
             loop = asyncio.get_running_loop()
-            self.transport, _ = await loop.create_datagram_endpoint(
-                lambda: self.protocol,
-                local_addr=('0.0.0.0', 5000)  # AJUSTA el puerto según sea necesario
+            
+            # Configurar el endpoint UDP
+            self.transport, self.protocol = await loop.create_datagram_endpoint(
+                lambda: MJPEGProtocol(self.send_frame, self._tasks),
+                local_addr=('0.0.0.0', self.udp_port),
+                reuse_port=True
             )
-            logging.info("Esperando video MJPEG por UDP en 0.0.0.0:5000")
+            
+            # Mantener la conexión activa
+            while self._active and not getattr(self.protocol, 'done', True):
+                await asyncio.sleep(0.1)
+                
+                # Verificar timeout (5 segundos sin frames)
+                if (getattr(self.protocol, 'last_frame_time', None) and 
+                    time.time() - self.protocol.last_frame_time > 5):
+                    print(f"⚠️ Timeout en cámara {self.camera_id}")
+                    break
 
-            while not self.protocol.done:
-                await asyncio.sleep(1)
-
-        except asyncio.CancelledError:
-            logging.info("Stream cancelado por el cliente.")
         except Exception as e:
-            logging.error(f"Error en MJPEG stream: {e}")
+            print(f"❌ Error en cámara {self.camera_id}: {str(e)}")
+            await self.send_body(b'--frame\r\nContent-Type: text/plain\r\n\r\nError en el stream\r\n', more_body=False)
         finally:
-            await self.cleanup()
+            self._active = False
+            if hasattr(self, 'transport') and self.transport:
+                self.transport.close()
+            await self.cancel_tasks()
 
-    async def send_frame_safe(self, frame_data):
+    async def send_frame(self, frame_data):
+        """Envía un frame MJPEG al cliente"""
         try:
             await self.send_body(frame_data, more_body=True)
         except Exception as e:
-            logging.error(f"Error enviando frame: {e}")
-            self.protocol.done = True
+            print(f"❌ Error enviando frame (cámara {self.camera_id}): {str(e)}")
+            self._active = False
 
-    async def cleanup(self):
-        if self.transport:
-            self.transport.close()
-        self.protocol.done = True
-        for task in self._active_tasks:
-            task.cancel()
-        if self._active_tasks:
-            await asyncio.wait(self._active_tasks)
-        logging.info("MJPEG stream limpiado completamente.")
+    async def cancel_tasks(self):
+        """Cancela todas las tareas pendientes"""
+        if hasattr(self, '_tasks'):
+            for task in self._tasks:
+                if not task.done():
+                    task.cancel()
+            if self._tasks:
+                await asyncio.wait(self._tasks, timeout=0.5)
+            self._tasks.clear()
 
-
-class MJPEGProtocol:
-    def __init__(self, send_frame, active_tasks):
-        self.send_frame = send_frame
-        self._active_tasks = active_tasks
-        self.buffer = b""
-        self.done = False
+class MJPEGProtocol(asyncio.DatagramProtocol):
+    def __init__(self, send_frame_callback, active_tasks):
+        super().__init__()
+        self.send_frame = send_frame_callback  # Ahora usa el método correcto
+        self.active_tasks = active_tasks
+        self.buffer = bytearray()
+        self.last_frame_time = None
         self.transport = None
+        self.done = False
 
     def connection_made(self, transport):
         self.transport = transport
+        print("✅ Conexión UDP establecida en", transport.get_extra_info('sockname'))
 
     def datagram_received(self, data, addr):
         try:
-            self.buffer += data
-
-            # Protege contra buffers demasiado grandes
-            if len(self.buffer) > 10_000_000:
-                logging.warning("Buffer demasiado grande, limpiando.")
-                self.buffer = b""
-
-            start_marker = b'\xff\xd8'
-            end_marker = b'\xff\xd9'
-
+            self.last_frame_time = time.time()
+            self.buffer.extend(data)
+            
             while True:
-                start_pos = self.buffer.find(start_marker)
+                start_pos = self.buffer.find(b'\xff\xd8')
                 if start_pos == -1:
-                    self.buffer = b''
+                    self.buffer.clear()
                     break
-
-                end_pos = self.buffer.find(end_marker, start_pos)
+                    
+                end_pos = self.buffer.find(b'\xff\xd9', start_pos + 2)
                 if end_pos == -1:
                     break
-
-                jpeg_frame = self.buffer[start_pos:end_pos + 2]
+                    
+                jpeg_frame = bytes(self.buffer[start_pos:end_pos + 2])
                 self.buffer = self.buffer[end_pos + 2:]
-
-                boundary = b'--frame\r\n'
-                content_type = b'Content-Type: image/jpeg\r\n\r\n'
-                frame_data = boundary + content_type + jpeg_frame + b'\r\n'
-
+                
+                frame_data = (
+                    b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' +
+                    jpeg_frame +
+                    b'\r\n'
+                )
+                
                 task = asyncio.create_task(self.send_frame(frame_data))
-                task.add_done_callback(self._remove_task)
-                self._active_tasks.add(task)
+                task.add_done_callback(lambda t: self.active_tasks.discard(t))
+                self.active_tasks.add(task)
 
         except Exception as e:
-            logging.error(f"Error procesando datagrama UDP: {e}")
+            print(f"❌ Error procesando datagrama: {str(e)}")
             self.done = True
 
-    def _remove_task(self, task):
-        self._active_tasks.discard(task)
+    def error_received(self, exc):
+        print(f"❌ Error en conexión UDP: {str(exc)}")
+        self.done = True
 
     def connection_lost(self, exc):
-        self.done = True
         if exc:
-            logging.error(f"Conexión UDP perdida: {exc}")
+            print(f"⚠️ Conexión UDP perdida: {str(exc)}")
         else:
-            logging.info("Conexión UDP cerrada normalmente.")
-
+            print("🔌 Conexión UDP cerrada normalmente")
+        self.done = True
 
 class MjpegStreamConsumer2(AsyncHttpConsumer):
     async def handle(self, body):
@@ -234,3 +261,30 @@ class MjpegStreamConsumer3(AsyncHttpConsumer):
         if self._active_tasks:
             await asyncio.wait(self._active_tasks)
         logging.info("MJPEG stream limpiado completamente.")
+
+class MonitoreoConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add("monitoreo", self.channel_name)
+        await self.accept()
+        print("Cliente conectado al monitoreo")
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("monitoreo", self.channel_name)
+        print("Cliente desconectado")
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        await self.channel_layer.group_send(
+            "monitoreo",
+            {
+                "type": "enviar_datos",
+                "cpu": data.get("cpu"),
+                "disco": data.get("disco")
+            }
+        )
+
+    async def enviar_datos(self, event):
+        await self.send(text_data=json.dumps({
+            "cpu": event["cpu"],
+            "disco": event["disco"]
+        }))
