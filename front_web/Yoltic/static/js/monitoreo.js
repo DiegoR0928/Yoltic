@@ -29,8 +29,8 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
   console.log('Mensaje recibido:', event.data);
   const data = JSON.parse(event.data);
-  document.getElementById('cpu').textContent = data.cpu;
-  document.getElementById('disco').textContent = data.disco;
+  document.getElementById('cpu').textContent = `${data.cpu}%`;
+  document.getElementById('disco').textContent = `${data.disco}%`;
 };
 
 /**

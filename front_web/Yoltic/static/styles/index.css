@@ -85,6 +85,18 @@ Contenedor general de cámaras:
 }
 
 /* 
+Boton de iniciar y detener la grabacion:
+- Color de fondo
+- Color de borde
+- Color de texto dentro de botones
+*/
+#btn-iniciar, #btn-detener {
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #8E8868;
+}
+
+/* 
 Botón de volver:
 - Inicialmente oculto.
 - Margen superior.

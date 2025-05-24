@@ -25,17 +25,17 @@ def index(request):
 # Inicialización de los pipelines de grabación
 recording_pipelines = {
     1: GrabacionPipeline(
-        rtsp_url="rtsp://192.168.1.74:8554/cam1",
+        rtsp_url="rtsp://192.168.1.75:8554/cam1",
         output_dir=settings.MEDIA_ROOT,
         camera_id=1
     ),
     2: GrabacionPipeline(
-        rtsp_url="rtsp://192.168.1.74:8554/cam2",
+        rtsp_url="rtsp://192.168.1.75:8554/cam2",
         output_dir=settings.MEDIA_ROOT,
         camera_id=2
     ),
     3: GrabacionPipeline(
-        rtsp_url="rtsp://192.168.1.74:8554/cam3",
+        rtsp_url="rtsp://192.168.1.75:8554/cam3",
         output_dir=settings.MEDIA_ROOT,
         camera_id=3
     )

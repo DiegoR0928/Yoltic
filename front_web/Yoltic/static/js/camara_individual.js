@@ -16,7 +16,7 @@ function mostrarCamara(camId) {
 
   const html = `
     <div class="col-md-12 camera-box d-flex justify-content-center align-items-center" style="height: 100vh;">
-      <img src="${urls[camId]}" width="640" height="480"/>
+      <img src="${urls[camId]}" width="1280" height="720"/>
     </div>
   `;
 

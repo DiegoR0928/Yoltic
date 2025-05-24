@@ -102,9 +102,9 @@ application = ProtocolTypeRouter({
 
 
 live_pipelines = {
-    1: LivePipeline("rtsp://192.168.1.74:8554/cam1", 5000),
-    2: LivePipeline("rtsp://192.168.1.74:8554/cam2", 5001),
-    3: LivePipeline("rtsp://192.168.1.74:8554/cam3", 5002),
+    1: LivePipeline("rtsp://192.168.1.75:8554/cam1", 5000),
+    2: LivePipeline("rtsp://192.168.1.75:8554/cam2", 5001),
+    3: LivePipeline("rtsp://192.168.1.75:8554/cam3", 5002),
 }
 
 

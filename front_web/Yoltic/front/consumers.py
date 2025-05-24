@@ -200,3 +200,4 @@ class MonitoreoConsumer(AsyncWebsocketConsumer):
             "cpu": event["cpu"],
             "disco": event["disco"]
         }))
+
