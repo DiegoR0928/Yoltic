@@ -1,4 +1,16 @@
-// Función para manejar el botón de inicio
+/**
+ * Maneja la acción de iniciar la grabación para todas las cámaras.
+ *
+ * Deshabilita el botón, muestra un spinner mientras se procesa la petición POST
+ * al endpoint '/comenzar-grabacion-todas/', maneja la respuesta y muestra alertas
+ * con el resultado.
+ *
+ * Args:
+ *   Ninguno.
+ *
+ * Returns:
+ *   Promise<void>
+ */
 async function startRecording() {
     const btn = document.getElementById('btn-iniciar');
     const originalText = btn.innerHTML;
@@ -37,7 +49,19 @@ async function startRecording() {
     }
 }
 
-// Función para manejar el botón de detener
+/**
+ * Maneja la acción de detener la grabación para todas las cámaras.
+ *
+ * Deshabilita el botón, muestra un spinner mientras se procesa la petición POST
+ * al endpoint '/detener-grabacion-todas/', maneja la respuesta y muestra alertas
+ * con el resultado.
+ *
+ * Args:
+ *   Ninguno.
+ *
+ * Returns:
+ *   Promise<void>
+ */
 async function stopRecording() {
     const btn = document.getElementById('btn-detener');
     const originalText = btn.innerHTML;
@@ -70,7 +94,19 @@ async function stopRecording() {
     }
 }
 
-// Función auxiliar para mostrar alertas
+/**
+ * Muestra una alerta en pantalla con un mensaje y tipo especificado.
+ *
+ * Crea dinámicamente un div con clases de Bootstrap para alertas, lo agrega
+ * al body, y lo elimina automáticamente después de 5 segundos.
+ *
+ * Args:
+ *   message (string): El mensaje que se mostrará en la alerta.
+ *   type (string): El tipo de alerta (por ejemplo, 'success', 'danger', 'warning').
+ *
+ * Returns:
+ *   void
+ */
 function showAlert(message, type) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
@@ -87,6 +123,6 @@ function showAlert(message, type) {
     }, 5000);
 }
 
-// Asignar eventos
+// Asignar eventos a botones de inicio y detención de grabación
 document.getElementById('btn-iniciar').addEventListener('click', startRecording);
 document.getElementById('btn-detener').addEventListener('click', stopRecording);

@@ -1,7 +1,17 @@
-// Establecer la conexión WebSocket
+/**
+ * Establece la conexión WebSocket con el servidor para enviar y recibir datos del joystick.
+ */
 const socket = new WebSocket('ws://localhost:8000/ws/joystick/');
 
-// Recibir datos del servidor WebSocket (opcional)
+/**
+ * Manejador para recibir mensajes del servidor WebSocket.
+ *
+ * Args:
+ *   e (MessageEvent): Evento que contiene los datos recibidos.
+ *
+ * Returns:
+ *   void
+ */
 socket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     const x = data.x;
@@ -10,6 +20,16 @@ socket.onmessage = function(e) {
     document.getElementById("joy-y").innerText = y;
 };
 
+/**
+ * Envía las coordenadas del joystick al servidor mediante WebSocket.
+ *
+ * Args:
+ *   x (number): Posición horizontal del joystick.
+ *   y (number): Posición vertical del joystick.
+ *
+ * Returns:
+ *   void
+ */
 function sendJoystickData(x, y) {
     if (socket.readyState === WebSocket.OPEN) {
         const data = { 'x': x, 'y': y };
@@ -17,10 +37,21 @@ function sendJoystickData(x, y) {
     }
 }
 
+// Referencias a elementos DOM para actualizar interfaz
 let stick = document.getElementById("stick-left");
 let coords = document.getElementById("coords");
 let status = document.getElementById("joy-status");
 
+/**
+ * Actualiza continuamente la posición del joystick detectado por la API Gamepad.
+ * Si el movimiento supera un umbral, mueve el elemento visual y envía datos por WebSocket.
+ *
+ * Args:
+ *   Ninguno.
+ *
+ * Returns:
+ *   void
+ */
 function updateGamepad() {
     const UMBRAL = 0.5;
     let gamepads = navigator.getGamepads();
@@ -44,23 +75,42 @@ function updateGamepad() {
     requestAnimationFrame(updateGamepad);
 }
 
+/**
+ * Evento que se dispara cuando un gamepad es conectado.
+ * Actualiza el estado en pantalla e inicia la actualización continua.
+ *
+ * Args:
+ *   e (GamepadEvent): Evento con información del gamepad conectado.
+ *
+ * Returns:
+ *   void
+ */
 window.addEventListener("gamepadconnected", (e) => {
     console.log("Gamepad conectado:", e.gamepad);
 
-    // Hacemos una lectura inicial forzada para que se actualice de inmediato
+    // Lectura inicial para actualizar inmediatamente
     const gp = navigator.getGamepads()[e.gamepad.index];
     if (gp) {
         document.getElementById("joy-status").innerText = "Gamepad conectado ✅";
         document.getElementById("coords").textContent = `X: ${gp.axes[0].toFixed(2)}, Y: ${gp.axes[1].toFixed(2)}`;
     }
 
-    // Comenzar animación continua
+    // Inicia animación para actualización continua
     requestAnimationFrame(updateGamepad);
 });
 
+/**
+ * Evento que se dispara cuando un gamepad es desconectado.
+ * Actualiza el estado en pantalla para reflejar desconexión.
+ *
+ * Args:
+ *   e (GamepadEvent): Evento con información del gamepad desconectado.
+ *
+ * Returns:
+ *   void
+ */
 window.addEventListener("gamepaddisconnected", (e) => {
     console.log("Gamepad desconectado:", e.gamepad);
-    document.getElementById("joy-status").innerText = "Gamepad conectado ❌";
+    document.getElementById("joy-status").innerText = "Gamepad desconectado ❌";
     document.getElementById("coords").textContent = `X: 0, Y: 0`;
 });
-

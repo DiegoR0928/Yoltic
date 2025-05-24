@@ -1,26 +1,29 @@
-
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Construcción de rutas base dentro del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Configuración para archivos de medios (subidas de usuario)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL  = '/media/'
+MEDIA_URL = '/media/'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# ------------------------------------------
+# Configuración general y seguridad
+# ------------------------------------------
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o1*p#3@z03cb%g&hh_9f@-s4#)8gi6q+pvyb922v$-$+)($s6('
+# Clave secreta de Django para criptografía, ¡no compartir en producción!
+SECRET_KEY = (
+    'django-insecure-o1*p#3@z03cb%g&hh_9f@-s4#'
+    ')8gi6q+pvyb922v$-$+)($s6('
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
-# Application definition
-
+# ------------------------------------------
+# Aplicaciones instaladas
+# ------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,10 +31,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'front',
-    'channels'
+    'channels',
 ]
 
+# ------------------------------------------
+# Middleware
+# ------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -40,9 +47,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
+# ------------------------------------------
+# Configuración de URLs y plantillas
+# ------------------------------------------
 ROOT_URLCONF = 'Yoltic.urls'
 
 TEMPLATES = [
@@ -63,10 +74,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Yoltic.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# ------------------------------------------
+# Base de datos
+# ------------------------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -74,52 +84,58 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
+# ------------------------------------------
+# Validadores de contraseña
+# ------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'UserAttributeSimilarityValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'MinimumLengthValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'CommonPasswordValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'NumericPasswordValidator'
+        ),
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
+# ------------------------------------------
+# Internacionalización
+# ------------------------------------------
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+# ------------------------------------------
+# Archivos estáticos
+# ------------------------------------------
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+# ------------------------------------------
+# Django Channels
+# ------------------------------------------
 ASGI_APPLICATION = "Yoltic.asgi.application"
 
 CHANNEL_LAYERS = {
@@ -131,3 +147,4 @@ CHANNEL_LAYERS = {
     },
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -12,8 +12,12 @@ print(f"Escuchando UDP en {IP_LOCAL}:{PUERTO}...")
 
 try:
     while True:
-        datos, direccion = sock.recvfrom(1024)  # Tamaño máximo del paquete: 1024 bytes
-        print(f"Recibido de {direccion}: {datos.decode('utf-8', errors='replace')}")
+        # Tamaño máximo del paquete: 1024 bytes
+        datos, direccion = sock.recvfrom(1024)
+        print(
+            f"Recibido de {direccion}: "
+            f"{datos.decode('utf-8', errors='replace')}"
+        )
 except KeyboardInterrupt:
     print("\nRecepción terminada por el usuario.")
 finally:

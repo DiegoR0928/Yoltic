@@ -1,15 +1,31 @@
-
+/* 
+Estilos globales para el body y html:
+- Sin márgenes ni padding.
+- Altura total de la ventana.
+- Fondo color beige oscuro.
+*/
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     background-color: #8E8868;
-  }
+}
 
+/* 
+Clase para establecer la altura en la mitad de la ventana del navegador (50vh).
+*/
 .half-height {
   height: 50vh;
 }
 
+/* 
+Estilo para los contenedores de cámara:
+- Altura 50vh.
+- Sin padding.
+- Oculta contenido desbordado.
+- Bordes elegantes oscuros a los lados y abajo.
+- Fondo negro para evitar espacios vacíos con esquinas redondeadas.
+*/
 .camera-box {
   height: 50vh;
   padding: 0;
@@ -18,8 +34,14 @@ body, html {
   border-right: 1.5px solid #222; /* Borde elegante oscuro */
   border-bottom: 4px solid #222; /* Borde elegante oscuro */
   background-color: black; /* Para evitar huecos al redondear */
-  }
+}
 
+/* 
+Estilo para videos que se muestran juntos:
+- Ocupa todo el ancho y alto del contenedor.
+- Ajusta el contenido con object-fit cover para cubrir el área sin distorsión.
+- Se muestra como bloque.
+*/
 .video-juntas{
   width: 100%;
   height: 100%;
@@ -27,6 +49,11 @@ body, html {
   display: block;
 }
 
+/* 
+Efecto hover para elementos con clase hover:
+- Levanta el elemento 4px hacia arriba.
+- Aplica sombras para efecto de profundidad.
+*/
 .hover:hover {
   transform: translateY(-4px);
   box-shadow:
@@ -34,6 +61,12 @@ body, html {
     -12px -12px 24px #6a7152;
 }
 
+/* 
+Estilo para videos ajustados:
+- Ocupa todo el ancho y alto.
+- Usa object-fit contain para que el contenido se ajuste sin recorte.
+- Display block.
+*/
 .video-ajustado {
   width: 100%;
   height: 100%;
@@ -41,11 +74,24 @@ body, html {
   display: block;
 }
 
+/* 
+Contenedor general de cámaras:
+- Altura automática.
+- Transición suave para cambios de altura en 0.3 segundos.
+*/
 #contenedor-camaras {
   height: auto;
   transition: height 0.3s ease;
 }
 
+/* 
+Botón de volver:
+- Inicialmente oculto.
+- Margen superior.
+- Colores y bordes personalizados.
+- Posición fija en la esquina superior izquierda.
+- Z-index alto para estar encima de otros elementos.
+*/
 #btn-volver {
   display: none; 
   margin-top: 5px;
@@ -58,18 +104,39 @@ body, html {
   z-index: 1000; /* Asegura que esté encima de otros elementos */
 }
 
+/* 
+Caja de controles:
+- Fondo beige oscuro.
+- Altura total.
+- Borde derecho negro.
+- Padding arriba.
+*/
 .control-box {
     background-color: #8E8868;
     height: 100%;
     border-right: 2px solid black;
     padding-top: 15px;
 }
-  .wait-box {
+
+/* 
+Caja de espera con estilo igual que control-box.
+*/
+.wait-box {
     background-color: #8E8868;
     height: 100%;
     border-right: 2px solid black;
-  }
+}
 
+/* 
+Contenedor del gamepad:
+- Tamaño cuadrado 200x200 px.
+- Fondo verde oscuro.
+- Centrando margen automático.
+- Bordes redondeados.
+- Sombra para profundidad.
+- Borde fino.
+- Transiciones suaves para sombra y transformaciones.
+*/
 #gamepad {
   width: 200px;
   height: 200px;
@@ -84,10 +151,24 @@ body, html {
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+/* 
+Estado del joystick con padding superior.
+*/
 #joy-status {
   padding-top: 15px;
 }
 
+/* 
+Stick izquierdo del joystick:
+- Tamaño 40x40 px.
+- Fondo degradado radial marrón oscuro.
+- Borde redondeado para círculo.
+- Posición absoluta dentro del gamepad.
+- Transformación inicial sin desplazamiento.
+- Transición rápida para transformaciones (movimiento suave).
+- Sombras internas y externas para efecto 3D.
+- Borde oscuro.
+*/
 #stick-left {
   width: 40px;
   height: 40px;
@@ -106,6 +187,11 @@ body, html {
   border: 2px solid #1e1514;
 }
 
+/* 
+Icono grande para tamaños grandes:
+- Tamaño de fuente muy grande (5rem).
+- Padding interno del 2%.
+*/
 .icono-grande {
   font-size: 5rem !important;
   padding: 2%;
