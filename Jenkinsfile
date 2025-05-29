@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh '''
                     # Activar entorno virtual y ejecutar flake8
-                    . env/bin/activate
+                    . $HOME/env/bin/activate
                     flake8 .
                 '''
             }

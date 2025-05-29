@@ -1,5 +1,3 @@
-import threading
-from front.live_pipeline import LivePipeline
 import os
 import asyncio
 import logging
@@ -99,25 +97,3 @@ application = ProtocolTypeRouter({
         )
     ),
 })
-
-
-live_pipelines = {
-    1: LivePipeline("rtsp://192.168.1.75:8554/cam1", 5000),
-    2: LivePipeline("rtsp://192.168.1.75:8554/cam2", 5001),
-    3: LivePipeline("rtsp://192.168.1.75:8554/cam3", 5002),
-}
-
-
-def init_pipelines():
-    """
-    Función para iniciar todos los pipelines de video en hilos independientes.
-    """
-    try:
-        print("corriendo de asgi")
-        for pipeline in live_pipelines.values():
-            pipeline.start()
-    except Exception as e:
-        print("Error iniciando pipelines:", e)
-
-
-threading.Thread(target=init_pipelines, daemon=True).start()

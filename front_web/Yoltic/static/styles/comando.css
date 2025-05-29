@@ -1,0 +1,93 @@
+/* 
+Estilos globales para el body y html:
+- Sin márgenes ni padding.
+- Altura total de la ventana.
+- Fondo color beige oscuro.
+*/
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #8E8868;
+}
+
+/* 
+Clase para establecer la altura en la mitad de la ventana del navegador (50vh).
+*/
+.half-height {
+  height: 50vh;
+}
+
+/* 
+Caja de controles:
+- Fondo beige oscuro.
+- Altura total.
+- Borde derecho negro.
+- Padding arriba.
+*/
+.control-box {
+    background-color: #8E8868;
+    height: 100%;
+    border-right: 2px solid black;
+    padding-top: 15px;
+}
+
+/* 
+Contenedor del gamepad:
+- Tamaño cuadrado 200x200 px.
+- Fondo verde oscuro.
+- Centrando margen automático.
+- Bordes redondeados.
+- Sombra para profundidad.
+- Borde fino.
+- Transiciones suaves para sombra y transformaciones.
+*/
+#gamepad {
+  width: 200px;
+  height: 200px;
+  background: #52583F; 
+  margin: auto;
+  border-radius: 20px;
+  position: relative;
+
+  box-shadow:
+    8px 8px 16px #3e4230;  
+  border: 1px solid #41462f;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* 
+Estado del joystick con padding superior.
+*/
+#joy-status {
+  padding-top: 15px;
+}
+
+/* 
+Stick izquierdo del joystick:
+- Tamaño 40x40 px.
+- Fondo degradado radial marrón oscuro.
+- Borde redondeado para círculo.
+- Posición absoluta dentro del gamepad.
+- Transformación inicial sin desplazamiento.
+- Transición rápida para transformaciones (movimiento suave).
+- Sombras internas y externas para efecto 3D.
+- Borde oscuro.
+*/
+#stick-left {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at 30% 30%, #5a3d38, #2a1d1a);
+  border-radius: 50%;
+  position: absolute;
+  left: 80px;
+  top: 75px;
+  transform: translate(0, 0);
+  transition: transform 0.05s linear;
+
+  box-shadow:
+    inset -3px -3px 6px rgba(255, 255, 255, 0.1),  
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),           
+    4px 4px 10px rgba(0, 0, 0, 0.4);                
+  border: 2px solid #1e1514;
+}

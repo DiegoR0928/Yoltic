@@ -1,0 +1,13 @@
+FROM python:3.10-slim
+
+# Crea el directorio de la app
+WORKDIR /monitoreo
+
+# Copia los archivos necesarios
+COPY monitoreo/scriptMonitoreo.py /monitoreo/scriptMonitoreo.py
+
+# Instala las dependencias necesarias
+RUN pip install --no-cache-dir websockets psutil
+
+# Comando por defecto al arrancar el contenedor
+CMD ["python", "scriptMonitoreo.py"]

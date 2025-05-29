@@ -1,0 +1,36 @@
+/* 
+Estilos globales para el body y html:
+- Sin márgenes ni padding.
+- Altura total de la ventana.
+- Fondo color beige oscuro.
+*/
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #8E8868;
+}
+
+/* 
+Botón de volver:
+- Inicialmente oculto.
+- Margen superior.
+- Colores y bordes personalizados.
+- Posición fija en la esquina superior izquierda.
+- Z-index alto para estar encima de otros elementos.
+*/
+#btn-volver {
+  display: block;
+  margin-top: 5px;
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #8E8868;
+  width: 120px;           
+  padding: 6px 10px;            
+  text-align: center;      
+}
+
+#lista-videos {
+    background-color: #DAD1BA;
+    border: 0.5px solid #323812;
+}

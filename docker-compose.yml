@@ -12,10 +12,9 @@ services:
      # - "5010:5004/udp"
      # - "5011:5005/udp"
     devices:
-      # Permite al contenedor acceder a los dispositivos de video (ajusta la ruta de los dispositivos)
-      - /dev/bus/usb/002/004:/dev/bus/usb/002/004
-      - /dev/bus/usb/002/005:/dev/bus/usb/002/005
-      - /dev/bus/usb/003/002:/dev/bus/usb/003/002
+      - /dev/bus/usb/:/dev/bus/usb/
+        #- /dev/bus/usb/002/005:/dev/bus/usb/002/005
+        #- /dev/bus/usb/003/002:/dev/bus/usb/003/002
     volumes:
       - ./gstreamer/start_gstreamer.sh:/Gstreamer/start_gstreamer.sh
     restart: no
@@ -24,15 +23,21 @@ services:
 
   cliente_comandos:
     build:
-      context: .  # Directorio actual para construir la imagen
-      dockerfile: Dockerfile_ClientComandos  # Especifica el Dockerfile a usar (puedes omitir esto si el archivo se llama 'Dockerfile')
+      context: .
+      dockerfile: Dockerfile_ClientComandos
     container_name: cliente_comandos
+    restart: unless-stopped
     devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"  # Mapea el puerto serial del host al contenedor (ajusta según tu dispositivo)
-    #ports:
-      #- "5005:5005/udp"  # Mapea el puerto UDP
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 70M
+    environment:
+      - PYTHONUNBUFFERED=1
     network_mode: "host"
-    restart: always  
+    privileged: true
   
   mediamtx:
     image: bluenviron/mediamtx:latest
@@ -57,15 +62,15 @@ services:
       depends_on:
         - db
         - redis
-#      ports:
-       # - 8000:8000
-       # - 5000:5000
-       # - 9000:9000
-       # - 8001:8001
-       # - 5005:5005
+      ports:
+        - 8000:8000
+        - 5000:5000
+        - 9000:9000
+        - 8001:8001
+        - 5005:5005
       volumes:
         - ./front_web:/front_web
-      network_mode: "host"
+      #network_mode: "host"
 
       environment:
         DB_NAME: ${DB_NAME}
@@ -77,10 +82,21 @@ services:
         DB_HOST: ${DB_HOST}
         DEBUG: ${DEBUG}
         SECRET_KEY: ${SECRET_KEY}
+          - REDIS_HOST=redis
 
   redis:
     image: redis:7
-    network_mode: "host" 
+    ports:
+      - "6379:6379"
+    #network_mode: "host" 
+  
+  monitoreo:
+    build:
+      context: .
+      dockerfile: Dockerfile_ServerMonitoreo
+    container_name: monitoreo
+    restart: always
+    network_mode: "host"
 
   db:
     image: mariadb

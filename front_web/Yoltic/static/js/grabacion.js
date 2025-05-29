@@ -95,6 +95,86 @@ async function stopRecording() {
 }
 
 /**
+ * Maneja la acción de iniciar la grabación para una cámara específica.
+ *
+ * Args:
+ *   cam_id (string): ID de la cámara a grabar.
+ *
+ * Returns:
+ *   Promise<void>
+ */
+async function startRecordingIndividual(cam_id) {
+    const btn = document.getElementById('btn-iniciar-individual');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Iniciando...';
+
+    try {
+        const response = await fetch(`/comenzar-grabacion/${cam_id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error al iniciar grabación');
+        }
+
+        showAlert(data.message, data.status === 'error' ? 'danger' : 'success');
+    } catch (error) {
+        console.error('Error:', error);
+        showAlert(error.message, 'danger');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+/**
+ * Maneja la acción de detener la grabación para una cámara específica.
+ *
+ * Args:
+ *   cam_id (string): ID de la cámara a detener.
+ *
+ * Returns:
+ *   Promise<void>
+ */
+async function stopRecordingIndividual(cam_id) {
+    const btn = document.getElementById('btn-detener-individual');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deteniendo...';
+
+    try {
+        const response = await fetch(`/detener-grabacion/${cam_id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error al detener grabación');
+        }
+
+        showAlert(data.message, 'success');
+    } catch (error) {
+        console.error('Error:', error);
+        showAlert(error.message, 'danger');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+/**
  * Muestra una alerta en pantalla con un mensaje y tipo especificado.
  *
  * Crea dinámicamente un div con clases de Bootstrap para alertas, lo agrega
@@ -123,6 +203,6 @@ function showAlert(message, type) {
     }, 5000);
 }
 
-// Asignar eventos a botones de inicio y detención de grabación
+// Asignar eventos a botones de inicio y detención de grabación para todas las cámaras
 document.getElementById('btn-iniciar').addEventListener('click', startRecording);
 document.getElementById('btn-detener').addEventListener('click', stopRecording);

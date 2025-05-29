@@ -18,19 +18,35 @@ function mostrarCamara(camId) {
     <div class="col-md-12 camera-box d-flex justify-content-center align-items-center" style="height: 100vh;">
       <img src="${urls[camId]}" width="1280" height="720"/>
     </div>
+    <button id="btn-volver" class="btn btn-primary" onclick="mostrarTresCamaras()">Volver</button>
+    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+    <button id="btn-iniciar-individual" class="btn btn-primary" data-cam-id="${camId}">Iniciar Grabación</button>
+    <button id="btn-detener-individual" class="btn btn-primary" data-cam-id="${camId}">Detener Grabación</button>
+    <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
   `;
 
-  // Mostrar el botón de volver
+  document.getElementById("contenedor-camaras").innerHTML = html;
+
+  document.getElementById('btn-iniciar-individual').addEventListener('click', (event) => {
+      const cam_id = event.currentTarget.getAttribute('data-cam-id');
+      startRecordingIndividual(cam_id);
+  });
+
+  document.getElementById('btn-detener-individual').addEventListener('click', (event) => {
+      const cam_id = event.currentTarget.getAttribute('data-cam-id');
+      stopRecordingIndividual(cam_id);
+  });
+
+
+
   document.getElementById("btn-volver").style.display = "block";
 
-  // Ocultar las tres cámaras pequeñas
   document.querySelectorAll(".camera-box").forEach(camera => {
     camera.style.display = "none";
   });
 
-  // Insertar el HTML para la cámara seleccionada
-  document.getElementById("contenedor-camaras").innerHTML = html;
 }
+
 
 /**
  * Muestra las tres cámaras pequeñas en la pantalla principal.
@@ -59,10 +75,18 @@ function mostrarTresCamaras() {
         <img src="/mjpeg3/" width="640" height="480"/>
       </a>
     </div>
+    <button id="btn-volver" class="btn btn-primary" onclick="mostrarTresCamaras()">Volver</button>
+    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+    <button id="btn-iniciar" class="btn btn-primary">Iniciar Grabación</button>
+    <button id="btn-detener" class="btn btn-primary">Detener Grabación</button>
+    <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
   `;
 
   // Ocultar el botón de volver
   document.getElementById("btn-volver").style.display = "none";
+
+  document.getElementById('btn-iniciar').addEventListener('click', startRecording);
+  document.getElementById('btn-detener').addEventListener('click', stopRecording);
 
   // Mostrar las cámaras pequeñas
   document.querySelectorAll(".camera-box").forEach(camera => {

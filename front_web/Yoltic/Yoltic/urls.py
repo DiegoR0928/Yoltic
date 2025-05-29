@@ -11,5 +11,4 @@ urlpatterns = [
     path('', include('front.urls')),
 ]
 
-# Añade soporte para servir archivos multimedia en modo desarrollo
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

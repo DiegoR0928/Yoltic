@@ -90,11 +90,40 @@ Boton de iniciar y detener la grabacion:
 - Color de borde
 - Color de texto dentro de botones
 */
-#btn-iniciar, #btn-detener {
+#btn-iniciar,
+#btn-detener,
+#btn-iniciar-individual,
+#btn-detener-individual {
   background-color: #52583F;
   border: 2px solid #323812;
   color: #8E8868;
+  margin-top: 5px;
+  width: 200px;       /* Cambia el ancho según necesites */
+  text-align: center; /* Centra el texto dentro del botón */
+  margin-bottom: 10px; /* Espaciado entre botones si están en columna */
+  display: block;     /* Hace que ocupen toda la línea si están en un div */
 }
+
+/* 
+Boton de iniciar y detener la grabacion:
+- Color de fondo
+- Color de borde
+- Color de texto dentro de botones
+*/
+#btn-grabaciones {
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #8E8868;
+  margin-top: 5px;
+  width: 200px;       
+  text-align: center; 
+  margin-bottom: 10px; 
+  display: block;  
+  margin-left: auto;
+  display: block;
+  width: fit-content;   
+}
+
 
 /* 
 Botón de volver:
@@ -105,7 +134,7 @@ Botón de volver:
 - Z-index alto para estar encima de otros elementos.
 */
 #btn-volver {
-  display: none; 
+  display: none;
   margin-top: 5px;
   background-color: #52583F;
   border: 2px solid #323812;
@@ -113,8 +142,12 @@ Botón de volver:
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000; /* Asegura que esté encima de otros elementos */
+  z-index: 1000;
+  width: 120px;           
+  padding: 6px 10px;            
+  text-align: center;      
 }
+
 
 /* 
 Caja de controles:
