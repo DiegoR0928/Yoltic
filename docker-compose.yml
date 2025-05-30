@@ -62,15 +62,15 @@ services:
       depends_on:
         - db
         - redis
-      ports:
-        - 8000:8000
-        - 5000:5000
-        - 9000:9000
-        - 8001:8001
-        - 5005:5005
+      #ports:
+       # - 8000:8000
+       # - 5000:5000
+       # - 9000:9000
+       # - 8001:8001
+       # - 5005:5005
       volumes:
         - ./front_web:/front_web
-      #network_mode: "host"
+      network_mode: "host"
 
       environment:
         DB_NAME: ${DB_NAME}
@@ -86,9 +86,9 @@ services:
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
-    #network_mode: "host" 
+    #ports:
+     # - "6379:6379"
+    network_mode: "host" 
   
   monitoreo:
     build:
@@ -109,8 +109,9 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - db:/var/lib/mysql
-    ports:
-      - 127.0.0.1:3310:3306
+    #ports:
+     # - 127.0.0.1:3310:3306
+    network_mode: "host"
 
 volumes:
   db:
