@@ -26,7 +26,9 @@ RUN ln -snf  /etc/l/usr/share/zoneinfo/$TZocaltime && echo $TZ > /etc/timezone
 WORKDIR /front_web
 
 RUN python3 -m venv /env
-RUN . /env/bin/activate
+#RUN . /env/bin/activate
+
+ENV PATH="/env/bin:$PATH"
 
 #RUN mkdir /app/media && chown :www-data /app/media -R && chmod 775 /app/media -R
 RUN /env/bin/pip install --upgrade pip
@@ -37,6 +39,7 @@ RUN /env/bin/pip install --no-cache-dir channels_redis
 RUN /env/bin/pip install --no-cache-dir daphne
 RUN /env/bin/pip install --no-cache-dir whitenoise
 RUN /env/bin/pip install --no-cache-dir PyGObject==3.50
+RUN /env/bin/pip install --no-cache-dir flake8
 
 CMD [ "apachectl", "-D", "FOREGROUND" ]
 

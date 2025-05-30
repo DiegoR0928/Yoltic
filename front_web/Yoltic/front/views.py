@@ -158,16 +158,21 @@ def comenzar_grabacion_individual(request, cam_id):
 
     Args:
         request (HttpRequest): Objeto de la petición HTTP (POST).
-        cam_id (str): ID de la cámara a grabar.
+        cam_id (str): ID de la cámara a grabar (esperado como string, se convierte a int).
 
     Returns:
         JsonResponse: Respuesta JSON con el estado de la operación.
     """
     try:
-        pipeline = recording_pipelines.get(cam_id)
-        if not pipeline:
-            raise Http404(f"Cámara con ID '{cam_id}' no encontrada")
+        cam_id = int(cam_id)
+    except ValueError:
+        raise Http404(f"ID de cámara inválido: {cam_id}")
 
+    pipeline = recording_pipelines.get(cam_id)
+    if not pipeline:
+        raise Http404(f"Cámara con ID '{cam_id}' no encontrada")
+
+    try:
         success = pipeline.start()
         status = "success" if success else "failed"
         print(f"🎬 Iniciando grabación cámara {cam_id}: {'✅' if success else '❌'}")
@@ -175,7 +180,7 @@ def comenzar_grabacion_individual(request, cam_id):
         return JsonResponse({
             "status": status,
             "message": f"Grabación {'iniciada' if success else 'fallida'} para cámara {cam_id}",
-            "results": {cam_id: status}
+            "results": {str(cam_id): status}
         }, status=200 if success else 500)
 
     except Exception as e:
@@ -184,7 +189,6 @@ def comenzar_grabacion_individual(request, cam_id):
             "status": "error",
             "message": str(e)
         }, status=500)
-
 
 @require_POST
 def detener_grabacion_individual(request, cam_id):
