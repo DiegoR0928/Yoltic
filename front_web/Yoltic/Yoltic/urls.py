@@ -9,6 +9,9 @@ urlpatterns = [
 
     # Incluye todas las rutas definidas en front/urls.py
     path('', include('front.urls')),
+
+
+    path('', include('usuarios.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

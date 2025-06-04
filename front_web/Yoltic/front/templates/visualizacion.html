@@ -35,7 +35,13 @@
     <button id="btn-iniciar" class="btn btn-primary">Iniciar Grabación</button>
     <button id="btn-detener" class="btn btn-primary">Detener Grabación</button>
     <a id="btn-grabaciones" href="{% url 'lista_grabaciones' %}" class="btn btn-secondary">Ver Grabaciones</a>
-  </div>
+    <!-- Botón adicional debajo de Ver Grabaciones -->
+     
+    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" id = "btn-cerrar">Cerrar Sesión</button>
+    </form>
+    </div>
 
   <!-- Monitoreo (CPU y Disco) -->
   <div class="row half-height">

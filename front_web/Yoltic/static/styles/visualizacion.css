@@ -115,15 +115,26 @@ Boton de iniciar y detener la grabacion:
   border: 2px solid #323812;
   color: #8E8868;
   margin-top: 5px;
-  width: 200px;       
-  text-align: center; 
-  margin-bottom: 10px; 
-  display: block;  
-  margin-left: auto;
+  width: 200px;
+  text-align: center;
+  margin-bottom: 10px;
   display: block;
-  width: fit-content;   
+  margin-left: auto;
+  width: fit-content;
 }
 
+#btn-cerrar {
+  position: fixed; /* Hace que quede en la ventana */
+  bottom: 20px;     /* Distancia desde la parte inferior */
+  right: 20px;      /* Distancia desde la derecha */
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #8E8868;
+  width: 200px;
+  text-align: center;
+  padding: 10px;
+  z-index: 1000; /* Asegura que quede visible encima */
+}
 
 /* 
 Botón de volver:

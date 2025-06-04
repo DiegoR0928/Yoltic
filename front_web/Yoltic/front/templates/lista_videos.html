@@ -10,7 +10,7 @@
 </head>
 <body class="container py-5">
   <h1>Grabaciones disponibles</h1>
-  <a id="btn-volver" href="/visualizacion" class="btn btn-outline-secondary mb-4">← Volver</a>
+  <a id="btn-volver" href="{% url 'visualizacion' %}" class="btn btn-outline-secondary mb-4">← Volver</a>
 
   {% if videos %}
     <ul class="list-group">

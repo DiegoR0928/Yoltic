@@ -40,6 +40,7 @@ RUN /env/bin/pip install --no-cache-dir daphne
 RUN /env/bin/pip install --no-cache-dir whitenoise
 RUN /env/bin/pip install --no-cache-dir PyGObject==3.50
 RUN /env/bin/pip install --no-cache-dir flake8
+RUN /env/bin/pip install --no-cache-dir coverage
 
 CMD [ "apachectl", "-D", "FOREGROUND" ]
 

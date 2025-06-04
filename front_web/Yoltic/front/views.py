@@ -5,23 +5,16 @@ from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from .iniciarPipelines import init_pipelines
+from usuarios.decorators import group_required , login_required_no_next
 import os
 
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
-def index(request):
-    """
-    Renderiza la página principal.
 
-    Args:
-        request (HttpRequest): Objeto de la petición HTTP.
-
-    Returns:
-        HttpResponse: Respuesta con la plantilla 'index.html'.
-    """
-    return render(request, 'index.html')
-
+@login_required_no_next
+@group_required('Visualizadores')
 def visualizacion(request):
     """
     Renderiza la página de visualizacion 
@@ -35,6 +28,9 @@ def visualizacion(request):
     init_pipelines()
     return render(request, 'visualizacion.html')
 
+
+@login_required_no_next
+@group_required('Operadores')
 def operacion(request):
     """
     Renderiza la página de comandos
@@ -158,21 +154,16 @@ def comenzar_grabacion_individual(request, cam_id):
 
     Args:
         request (HttpRequest): Objeto de la petición HTTP (POST).
-        cam_id (str): ID de la cámara a grabar (esperado como string, se convierte a int).
+        cam_id (str): ID de la cámara a grabar.
 
     Returns:
         JsonResponse: Respuesta JSON con el estado de la operación.
     """
     try:
-        cam_id = int(cam_id)
-    except ValueError:
-        raise Http404(f"ID de cámara inválido: {cam_id}")
+        pipeline = recording_pipelines.get(cam_id)
+        if not pipeline:
+            raise Http404(f"Cámara con ID '{cam_id}' no encontrada")
 
-    pipeline = recording_pipelines.get(cam_id)
-    if not pipeline:
-        raise Http404(f"Cámara con ID '{cam_id}' no encontrada")
-
-    try:
         success = pipeline.start()
         status = "success" if success else "failed"
         print(f"🎬 Iniciando grabación cámara {cam_id}: {'✅' if success else '❌'}")
@@ -180,7 +171,7 @@ def comenzar_grabacion_individual(request, cam_id):
         return JsonResponse({
             "status": status,
             "message": f"Grabación {'iniciada' if success else 'fallida'} para cámara {cam_id}",
-            "results": {str(cam_id): status}
+            "results": {cam_id: status}
         }, status=200 if success else 500)
 
     except Exception as e:
@@ -189,6 +180,7 @@ def comenzar_grabacion_individual(request, cam_id):
             "status": "error",
             "message": str(e)
         }, status=500)
+
 
 @require_POST
 def detener_grabacion_individual(request, cam_id):
@@ -223,7 +215,9 @@ def detener_grabacion_individual(request, cam_id):
             "status": "error",
             "message": str(e)
         }, status=500)
-    
+
+@login_required_no_next
+@group_required('Visualizadores')
 def lista_grabaciones(request):
     carpeta_grabaciones = settings.MEDIA_ROOT
     archivos = []

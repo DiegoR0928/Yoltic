@@ -20,6 +20,10 @@
       </div>
       <label id="joy-status">Esperando joystick... mueve para comenzar</label>
       <div id="coords" class="mt-3">X: 0.00, Y: 0.00</div>
+        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" id = "btn-cerrar">Cerrar Sesión</button>
+        </form>
     </div>
   </div>
 </div>

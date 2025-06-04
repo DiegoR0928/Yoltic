@@ -26,7 +26,7 @@ class JoystickConsumer(AsyncWebsocketConsumer):
             x = data.get('x')
             y = data.get('y')
             if x is not None and y is not None:
-                UDP_IP = "192.168.1.83"
+                UDP_IP = "192.168.1.77"
                 UDP_PORT = 5005
                 mensaje = f"{x},{y}"
                 await asyncio.get_running_loop().run_in_executor(
