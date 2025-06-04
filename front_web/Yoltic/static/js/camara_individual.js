@@ -11,7 +11,7 @@ function mostrarCamara(camId) {
   const urls = {
     1: "/mjpeg1/",
     2: "/mjpeg2/",
-    3: "/mjpeg3/"
+    3: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"
   };
 
   const html = `
