@@ -3,7 +3,6 @@ from gi.repository import Gst
 import gi
 gi.require_version('Gst', '1.0')
 
-
 class LivePipeline:
     """
     Clase para manejar un pipeline de GStreamer que recibe un stream RTSP,
@@ -53,10 +52,10 @@ class LivePipeline:
         # Elementos de fuente
         self.src = Gst.ElementFactory.make("rtspsrc", "src")
         self.src.set_property("location", self.rtsp_url)
-        self.src.set_property("latency", 200)
-        self.src.set_property("drop-on-latency", True)
+        self.src.set_property("latency", 800)
+        self.src.set_property("drop-on-latency", False)
         self.src.set_property("do-retransmission", True)
-        self.src.set_property("udp-reconnect", 1)
+        self.src.set_property("udp-reconnect", 5)
 
         # Elementos de depayload
         self.depay = Gst.ElementFactory.make("rtph264depay", "depay")
@@ -85,7 +84,7 @@ class LivePipeline:
         self.sink.set_property("host", "127.0.0.1")
         self.sink.set_property("port", self.udp_port)
         self.sink.set_property("sync", False)
-        self.sink.set_property("async", False)
+        self.sink.set_property("async", True)
         self.sink.set_property("max-lateness", 500000000)  # 500ms
         self.sink.set_property("qos", True)
 
@@ -245,3 +244,4 @@ class LivePipeline:
         time.sleep(1)
         self._initialize()
         self.start()
+

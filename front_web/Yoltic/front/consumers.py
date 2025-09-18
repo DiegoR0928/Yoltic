@@ -46,6 +46,7 @@ class JoystickConsumer(AsyncWebsocketConsumer):
         sock.close()
 
 
+
 class BaseMjpegStreamConsumer(AsyncHttpConsumer):
     udp_port = None
 
@@ -72,8 +73,12 @@ class BaseMjpegStreamConsumer(AsyncHttpConsumer):
                 f"Esperando video MJPEG por UDP en 0.0.0.0:{self.udp_port}"
             )
 
-            while not self.protocol.done:
+            # Loop principal: nunca termina automáticamente
+            while True:
                 await asyncio.sleep(1)
+                # Checar si hace mucho que no llegan frames
+                if self.protocol.last_frame_time and time.time() - self.protocol.last_frame_time > 10:
+                    logging.warning("⚠️ No llegan frames desde UDP, esperando...")
 
         except asyncio.CancelledError:
             logging.info("Stream cancelado por el cliente.")
@@ -87,12 +92,13 @@ class BaseMjpegStreamConsumer(AsyncHttpConsumer):
             await self.send_body(frame_data, more_body=True)
         except Exception as e:
             logging.error(f"Error enviando frame: {e}")
-            self.protocol.done = True
+            # No cerramos la conexión, solo log
+            pass
 
     async def cleanup(self):
         if self.transport:
             self.transport.close()
-        self.protocol.done = True
+        # Cancelar tareas activas
         for task in self._active_tasks:
             task.cancel()
         if self._active_tasks:
@@ -108,7 +114,6 @@ class MJPEGProtocol(asyncio.DatagramProtocol):
         self.buffer = bytearray()
         self.last_frame_time = None
         self.transport = None
-        self.done = False
 
     def connection_made(self, transport):
         self.transport = transport
@@ -125,11 +130,12 @@ class MJPEGProtocol(asyncio.DatagramProtocol):
             while True:
                 start_pos = self.buffer.find(b'\xff\xd8')
                 if start_pos == -1:
-                    self.buffer.clear()
+                    # No borrar el buffer, esperar más datagramas
                     break
 
                 end_pos = self.buffer.find(b'\xff\xd9', start_pos + 2)
                 if end_pos == -1:
+                    # No hay final de JPEG, esperar más datagramas
                     break
 
                 jpeg_frame = bytes(self.buffer[start_pos:end_pos + 2])
@@ -148,19 +154,18 @@ class MJPEGProtocol(asyncio.DatagramProtocol):
 
         except Exception as e:
             print(f"❌ Error procesando datagrama: {str(e)}")
-            self.done = True
+            # No cerramos la conexión automáticamente
 
     def error_received(self, exc):
         print(f"❌ Error en conexión UDP: {str(exc)}")
-        self.done = True
+        # No cerramos la conexión automáticamente
 
     def connection_lost(self, exc):
         if exc:
             print(f"⚠️ Conexión UDP perdida: {str(exc)}")
         else:
             print("🔌 Conexión UDP cerrada normalmente")
-        self.done = True
-
+        # No cerramos la conexión automáticamente
 
 class MjpegStreamConsumer(BaseMjpegStreamConsumer):
     udp_port = 5000

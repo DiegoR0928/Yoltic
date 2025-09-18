@@ -55,4 +55,5 @@ libgstreamer1.0-dev
 COPY ./gstreamer/start_gstreamer.sh /gstreamer/start_gstreamer.sh
 RUN chmod +x /gstreamer/start_gstreamer.sh
 
-ENTRYPOINT ["/gstreamer/start_gstreamer.sh"]
+CMD ["/bin/bash", "-c", "while true; do /gstreamer/start_gstreamer.sh || echo 'Error, reintentando...'; sleep 5; done"]
+#ENTRYPOINT ["/gstreamer/start_gstreamer.sh"]

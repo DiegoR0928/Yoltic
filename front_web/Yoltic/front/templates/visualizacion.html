@@ -17,7 +17,7 @@
   <div class="row half-height" id="contenedor-camaras">
     <div class="col-md-4 camera-box hover">
       <a onclick="mostrarCamara(1); return false;">
-        <img id="cam1-img" data-src="/mjpeg1/" src="/mjpeg1/" width="640" height="480" />
+        <img id="cam1-img" data-src="/mjpeg1/" src="/mjpeg1/" width="640" height="480" onerror="setTimeout(()=>this.src=this.src,1000)" />
       </a>
     </div>
     <div class="col-md-4 camera-box hover">
@@ -63,5 +63,18 @@
 <script src="{% static 'js/grabacion.js' %}" defer></script>
 <script src="{% static 'js/camara_individual.js' %}" defer></script>
 <script src="{% static 'js/monitoreo.js' %}" defer></script>
+
+<script>
+const img = document.getElementById("cam1-img");
+
+function refreshMJPEG() {
+    const timestamp = new Date().getTime();
+    console.log('Actualizando')
+    img.src = `/mjpeg1/?_=${timestamp}`;
+}
+
+// Recarga cada 5-10 segundos si no llegan frames
+setInterval(refreshMJPEG, 10000);
+</script>
 </body>
 </html>

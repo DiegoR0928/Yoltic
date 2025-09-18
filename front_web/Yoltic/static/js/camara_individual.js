@@ -23,6 +23,11 @@ function mostrarCamara(camId) {
     <button id="btn-iniciar-individual" class="btn btn-primary" data-cam-id="${camId}">Iniciar Grabación</button>
     <button id="btn-detener-individual" class="btn btn-primary" data-cam-id="${camId}">Detener Grabación</button>
     <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
+
+    <form id="logout-form" action="/logout/" method="post" style="display: inline;">
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+      <button type="submit" id="btn-cerrar" class="btn btn-danger">Cerrar Sesión</button>
+    </form>
   `;
 
   document.getElementById("contenedor-camaras").innerHTML = html;
@@ -80,6 +85,11 @@ function mostrarTresCamaras() {
     <button id="btn-iniciar" class="btn btn-primary">Iniciar Grabación</button>
     <button id="btn-detener" class="btn btn-primary">Detener Grabación</button>
     <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
+    <form id="logout-form" action="/logout/" method="post" style="display: inline;">
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+      <button type="submit" id="btn-cerrar" class="btn btn-danger">Cerrar Sesión</button>
+    </form>
+
   `;
 
   // Ocultar el botón de volver
