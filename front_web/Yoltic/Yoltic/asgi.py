@@ -7,11 +7,9 @@ from channels.auth import AuthMiddlewareStack
 from channels.middleware import BaseMiddleware
 from django.urls import path, re_path
 from front.consumers import (
-    JoystickConsumer,
     MjpegStreamConsumer,
     MjpegStreamConsumer2,
     MjpegStreamConsumer3,
-    MonitoreoConsumer,
 )
 
 # Establece la variable de entorno para la configuración de Django
@@ -44,7 +42,6 @@ class MJPEGStreamMiddleware(BaseMiddleware):
             ])
 
             try:
-                # Llama al siguiente middleware/consumidor con timeout
                 return await asyncio.wait_for(
                     super().__call__(scope, receive, send),
                     timeout=30.0
@@ -87,13 +84,5 @@ application = ProtocolTypeRouter({
                 ])
             )
         )
-    ),
-    "websocket": AuthMiddlewareStack(
-        ConnectionCleanupMiddleware(
-            URLRouter([
-                path("ws/joystick/", JoystickConsumer.as_asgi()),
-                path("ws/monitoreo/", MonitoreoConsumer.as_asgi()),
-            ])
-        )
-    ),
+    )
 })

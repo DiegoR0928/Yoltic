@@ -4,7 +4,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Visualización - Yoltic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Visualización - Yoltic</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="icon" href="{% static 'utils/Logo.ico'%}" type="image/x-icon">
@@ -12,43 +13,97 @@
 </head>
 <body>
 
-<div class="container-fluid">
-  <!-- Cámaras -->
-  <div class="row half-height" id="contenedor-camaras">
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(1); return false;">
-        <img id="cam1-img" data-src="/mjpeg1/" src="/mjpeg1/" width="640" height="480" onerror="setTimeout(()=>this.src=this.src,1000)" />
-      </a>
+<!-- Header con branding y estado -->
+<header class="header-tactical">
+  <div class="header-content">
+    <div class="brand-section">
+      <img src="{% static 'utils/Logo.ico'%}" alt="Logo Yoltic" class="logo-brand">
+      <h1 class="system-title">Sistema de Vigilancia</h1>
     </div>
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(2); return false;">
-        <img id="cam2-img" data-src="/mjpeg2/" src="/mjpeg2/" width="640" height="480" />
-      </a>
+    
+    <div class="status-section">
+      <div class="status-indicator">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Conectado</span>
+      </div>
+      <div class="datetime-display" id="datetime"></div>
     </div>
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(3); return false;">
-        <img id="cam3-img" data-src="/mjpeg3/" src="/mjpeg3/" width="640" height="480" />
-      </a>
+  </div>
+</header>
+
+<!-- Contenedor principal -->
+<main class="main-container">
+  <!-- Panel de control superior -->
+  <section id="control-panel" class="control-panel">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-2">
+        {% csrf_token %} 
+        <button id="btn-iniciar" class="btn btn-tactical">
+          <i class="bi bi-record-circle"></i> Iniciar Grabación
+        </button>
+        <button id="btn-detener" class="btn btn-tactical" disabled>
+          <i class="bi bi-stop-circle"></i> Detener Grabación
+        </button>
+      </div>
+
+      <div id="parte-derecha" class="d-flex gap-2">
+        <div class="recording-indicator" id="recording-indicator">
+          <span class="recording-dot"></span>
+          <span id="recording-text">No grabando</span>
+        </div>
+        <a id="btn-grabaciones" href="{% url 'lista_grabaciones' %}" class="btn btn-tactical-secondary">
+          <i class="bi bi-collection-play"></i> Ver Grabaciones
+        </a>
+      </div>
     </div>
-    <button id="btn-volver" class="btn btn-primary" onclick="mostrarTresCamaras()">Volver</button>
-    {% csrf_token %}
-    <button id="btn-iniciar" class="btn btn-primary">Iniciar Grabación</button>
-    <button id="btn-detener" class="btn btn-primary">Detener Grabación</button>
-    <a id="btn-grabaciones" href="{% url 'lista_grabaciones' %}" class="btn btn-secondary">Ver Grabaciones</a>
-    <!-- Botón adicional debajo de Ver Grabaciones -->
-     
-    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" id = "btn-cerrar">Cerrar Sesión</button>
-    </form>
+  </section>
+
+  <!-- Contenedor de cámaras con diseño central destacado -->
+  <section class="cameras-main-container">
+  <div class="cameras-layout" id="contenedor-camaras">
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 1</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(1)">
+        <img id="cam1-img" data-src="/mjpeg1/" src="/mjpeg1/" class="video-feed" />
+      </div>
     </div>
 
-  <!-- Monitoreo (CPU y Disco) -->
-  <div class="row half-height">
-    <div class="col-12 wait-box d-flex flex-column align-items-center justify-content-center">
-      <div class="d-flex gap-3 mt-2">
-        <i class="bi bi-cpu fs-1 icono-grande text-dark" id="cpu">--</i>
-        <i class="bi bi-hdd fs-1 icono-grande text-dark" id="disco">--</i>
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 2</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(2)">
+        <img id="cam2-img" data-src="/mjpeg2/" src="/mjpeg2/" class="video-feed" />
+      </div>
+    </div>
+
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 3</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(3)">
+        <img id="cam3-img" data-src="/mjpeg3/" src="/mjpeg3/" class="video-feed" />
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- Modal para vista individual de cámara -->
+<div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content tactical-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCameraTitle">Vista de Cámara</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modal-camera-img" src="" class="img-fluid" style="max-height: 70vh;">
       </div>
     </div>
   </div>
@@ -60,21 +115,9 @@
   const empezarGrabacionURL = "{% url 'comenzar_grabacion_todas' %}";
   const detenerGrabacionURL = "{% url 'detener_grabacion_todas' %}";
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/grabacion.js' %}" defer></script>
 <script src="{% static 'js/camara_individual.js' %}" defer></script>
-<script src="{% static 'js/monitoreo.js' %}" defer></script>
-
-<script>
-const img = document.getElementById("cam1-img");
-
-function refreshMJPEG() {
-    const timestamp = new Date().getTime();
-    console.log('Actualizando')
-    img.src = `/mjpeg1/?_=${timestamp}`;
-}
-
-// Recarga cada 5-10 segundos si no llegan frames
-setInterval(refreshMJPEG, 10000);
-</script>
+<script src="{% static 'js/status.js' %}" defer></script>
 </body>
 </html>

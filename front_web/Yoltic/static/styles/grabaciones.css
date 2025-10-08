@@ -1,36 +1,45 @@
-/* 
-Estilos globales para el body y html:
-- Sin márgenes ni padding.
-- Altura total de la ventana.
-- Fondo color beige oscuro.
-*/
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background-color: #8E8868;
-}
+ body {
+      background-color: #1f2519;
+      color: #e0e0d0;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-/* 
-Botón de volver:
-- Inicialmente oculto.
-- Margen superior.
-- Colores y bordes personalizados.
-- Posición fija en la esquina superior izquierda.
-- Z-index alto para estar encima de otros elementos.
-*/
-#btn-volver {
-  display: block;
-  margin-top: 5px;
-  background-color: #52583F;
-  border: 2px solid #323812;
-  color: #8E8868;
-  width: 120px;           
-  padding: 6px 10px;            
-  text-align: center;      
-}
+    h1 {
+      margin-bottom: 1.5rem;
+      color: #cfe8c0;
+    }
 
-#lista-videos {
-    background-color: #DAD1BA;
-    border: 0.5px solid #323812;
-}
+    .list-group-item {
+      background-color: #252e1d;
+      border: 1px solid #4a5c3b;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .list-group-item video {
+      max-width: 320px;
+      width: 100%;
+      border-radius: 6px;
+      margin-left: 10px;
+    }
+
+    #btn-volver {
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .list-group-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .list-group-item video {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }

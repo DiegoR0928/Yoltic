@@ -1,51 +1,8 @@
 # app/consumers.py
-import json
-import socket
-from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.generic.http import AsyncHttpConsumer
 import asyncio
 import logging
 import time
-
-
-class JoystickConsumer(AsyncWebsocketConsumer):
-    """
-    Consumer WebSocket para recibir comandos del joystick desde el frontend
-    y enviar dichos comandos mediante UDP a un dispositivo (robot).
-    """
-
-    async def connect(self):
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        pass
-
-    async def receive(self, text_data):
-        try:
-            data = json.loads(text_data)
-            x = data.get('x')
-            y = data.get('y')
-            if x is not None and y is not None:
-                UDP_IP = "192.168.1.77"
-                UDP_PORT = 5005
-                mensaje = f"{x},{y}"
-                await asyncio.get_running_loop().run_in_executor(
-                    None,
-                    self.enviar_udp,
-                    mensaje,
-                    UDP_IP,
-                    UDP_PORT
-                )
-                print(f"Enviado: {mensaje} a {UDP_IP}:{UDP_PORT}")
-        except Exception as e:
-            print("Error:", e)
-
-    def enviar_udp(self, mensaje, ip, puerto):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto(mensaje.encode('utf-8'), (ip, puerto))
-        sock.close()
-
-
 
 class BaseMjpegStreamConsumer(AsyncHttpConsumer):
     udp_port = None
@@ -177,32 +134,3 @@ class MjpegStreamConsumer2(BaseMjpegStreamConsumer):
 
 class MjpegStreamConsumer3(BaseMjpegStreamConsumer):
     udp_port = 5002
-
-
-class MonitoreoConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.channel_layer.group_add("monitoreo", self.channel_name)
-        await self.accept()
-        print("Cliente conectado al monitoreo")
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard("monitoreo", self.channel_name)
-        print("Cliente desconectado")
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        await self.channel_layer.group_send(
-            "monitoreo",
-            {
-                "type": "enviar_datos",
-                "cpu": data.get("cpu"),
-                "disco": data.get("disco")
-            }
-        )
-
-    async def enviar_datos(self, event):
-        await self.send(text_data=json.dumps({
-            "cpu": event["cpu"],
-            "disco": event["disco"]
-        }))
-

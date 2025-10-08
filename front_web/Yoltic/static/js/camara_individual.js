@@ -11,47 +11,57 @@ function mostrarCamara(camId) {
   const urls = {
     1: "/mjpeg1/",
     2: "/mjpeg2/",
-    3: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"
+    3: "/mjpeg3/"
   };
 
-  const html = `
-    <div class="col-md-12 camera-box d-flex justify-content-center align-items-center" style="height: 100vh;">
-      <img src="${urls[camId]}" width="1280" height="720"/>
-    </div>
-    <button id="btn-volver" class="btn btn-primary" onclick="mostrarTresCamaras()">Volver</button>
-    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-    <button id="btn-iniciar-individual" class="btn btn-primary" data-cam-id="${camId}">Iniciar Grabación</button>
-    <button id="btn-detener-individual" class="btn btn-primary" data-cam-id="${camId}">Detener Grabación</button>
-    <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
+  // Ocultar panel de control superior
+  document.getElementById("control-panel").style.display = "none";
 
-    <form id="logout-form" action="/logout/" method="post" style="display: inline;">
-      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-      <button type="submit" id="btn-cerrar" class="btn btn-danger">Cerrar Sesión</button>
-    </form>
+  const contenedor = document.getElementById("contenedor-camaras");
+  contenedor.innerHTML = `
+    <div class="individual-camera-wrapper" style="display: flex; flex-direction: column; align-items: center; height: calc(100vh - 20px); gap: 10px;">
+      
+      <div class="camera-card" style="flex: 1; width: 95%; max-width: 1600px; display: flex; flex-direction: column; margin-top: 40px;">
+        <div class="camera-header">
+          <span>Cámara ${camId}</span>
+          <span class="camera-status online">En línea</span>
+        </div>
+        <div class="camera-feed" style="flex: 1;">
+          <img src="${urls[camId]}" class="video-feed" style="width: 100%; height: 100%; object-fit: cover;"/>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button id="btn-iniciar-individual" class="btn btn-tactical" data-cam-id="${camId}">
+          <i class="bi bi-record-circle"></i> Iniciar Grabación
+        </button>
+        <button id="btn-detener-individual" class="btn btn-tactical" data-cam-id="${camId}">
+          <i class="bi bi-stop-circle"></i> Detener Grabación
+        </button>
+        <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-tactical-secondary">
+          <i class="bi bi-collection-play"></i> Ver Grabaciones
+        </a>
+        <button id="btn-volver" class="btn btn-danger">Volver</button>
+      </div>
+    </div>
   `;
 
-  document.getElementById("contenedor-camaras").innerHTML = html;
-
-  document.getElementById('btn-iniciar-individual').addEventListener('click', (event) => {
-      const cam_id = event.currentTarget.getAttribute('data-cam-id');
-      startRecordingIndividual(cam_id);
+  // Eventos de grabación
+  document.getElementById('btn-iniciar-individual').addEventListener('click', e => {
+    startRecordingIndividual(e.currentTarget.dataset.camId);
+  });
+  document.getElementById('btn-detener-individual').addEventListener('click', e => {
+    stopRecordingIndividual(e.currentTarget.dataset.camId);
   });
 
-  document.getElementById('btn-detener-individual').addEventListener('click', (event) => {
-      const cam_id = event.currentTarget.getAttribute('data-cam-id');
-      stopRecordingIndividual(cam_id);
+  // Volver a las tres cámaras
+  document.getElementById('btn-volver').addEventListener('click', () => {
+    mostrarTresCamaras();
+    document.getElementById("control-panel").style.display = "block";
   });
-
-
-
-  document.getElementById("btn-volver").style.display = "block";
-
-  document.querySelectorAll(".camera-box").forEach(camera => {
-    camera.style.display = "none";
-  });
-
+  
+  document.getElementById("control-panel").style.display = "none";
 }
-
 
 /**
  * Muestra las tres cámaras pequeñas en la pantalla principal.
@@ -64,42 +74,45 @@ function mostrarCamara(camId) {
  */
 function mostrarTresCamaras() {
   const contenedor = document.getElementById("contenedor-camaras");
-  contenedor.innerHTML = `
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(1); return false;">
-        <img src="/mjpeg1/" width="640" height="480"/>
-      </a>
-    </div>
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(2); return false;">
-        <img src="/mjpeg2/" width="640" height="480"/>
-      </a>
-    </div>
-    <div class="col-md-4 camera-box hover">
-      <a onclick="mostrarCamara(3); return false;">
-        <img src="/mjpeg3/" width="640" height="480"/>
-      </a>
-    </div>
-    <button id="btn-volver" class="btn btn-primary" onclick="mostrarTresCamaras()">Volver</button>
-    <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-    <button id="btn-iniciar" class="btn btn-primary">Iniciar Grabación</button>
-    <button id="btn-detener" class="btn btn-primary">Detener Grabación</button>
-    <a id="btn-grabaciones" href="${listaGrabacionesURL}" class="btn btn-secondary">Ver Grabaciones</a>
-    <form id="logout-form" action="/logout/" method="post" style="display: inline;">
-      <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-      <button type="submit" id="btn-cerrar" class="btn btn-danger">Cerrar Sesión</button>
-    </form>
 
+  // Solo reemplazamos el contenido de las cámaras, sin tocar el panel de control
+  contenedor.innerHTML = `
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 1</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(1)">
+        <img id="cam1-img" data-src="/mjpeg1/" src="/mjpeg1/" class="video-feed" />
+      </div>
+    </div>
+
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 2</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(2)">
+        <img id="cam2-img" data-src="/mjpeg2/" src="/mjpeg2/" class="video-feed" />
+      </div>
+    </div>
+
+    <div class="camera-card">
+      <div class="camera-header">
+        <span>Cámara 3</span>
+        <span class="camera-status online">En línea</span>
+      </div>
+      <div class="camera-feed hover" onclick="mostrarCamara(3)">
+        <img id="cam3-img" data-src="/mjpeg3/" src="/mjpeg3/" class="video-feed" />
+      </div>
+    </div>
   `;
 
-  // Ocultar el botón de volver
-  document.getElementById("btn-volver").style.display = "none";
+  // Reactivar botones del panel original si es necesario
+  document.getElementById('btn-iniciar').disabled = false;
+  document.getElementById('btn-detener').disabled = true;
 
+  // Volver a inicializar event listeners para grabación
   document.getElementById('btn-iniciar').addEventListener('click', startRecording);
   document.getElementById('btn-detener').addEventListener('click', stopRecording);
-
-  // Mostrar las cámaras pequeñas
-  document.querySelectorAll(".camera-box").forEach(camera => {
-    camera.style.display = "block";
-  });
 }

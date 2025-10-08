@@ -5,16 +5,8 @@ from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_POST
 from django.conf import settings
 from .iniciarPipelines import init_pipelines
-from usuarios.decorators import group_required , login_required_no_next
 import os
 
-from django.contrib.auth.decorators import login_required
-# Create your views here.
-
-
-
-@login_required_no_next
-@group_required('Visualizadores')
 def visualizacion(request):
     """
     Renderiza la página de visualizacion 
@@ -28,20 +20,6 @@ def visualizacion(request):
     init_pipelines()
     return render(request, 'visualizacion.html')
 
-
-@login_required_no_next
-@group_required('Operadores')
-def operacion(request):
-    """
-    Renderiza la página de comandos
-
-    Args:
-        request (HttpRequest): Objeto de la petición HTTP.
-
-    Returns:
-        HttpResponse: Respuesta con la plantilla 'comando.html'.
-    """
-    return render(request, 'comando.html')
 
 
 # Inicialización de los pipelines de grabación
@@ -62,7 +40,6 @@ recording_pipelines = {
         camera_id=3
     )
 }
-
 
 @require_POST
 def comenzar_grabacion_todas(request):
@@ -216,8 +193,6 @@ def detener_grabacion_individual(request, cam_id):
             "message": str(e)
         }, status=500)
 
-@login_required_no_next
-@group_required('Visualizadores')
 def lista_grabaciones(request):
     carpeta_grabaciones = settings.MEDIA_ROOT
     archivos = []

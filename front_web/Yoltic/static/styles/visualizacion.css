@@ -1,170 +1,294 @@
-/* 
-Estilos globales para el body y html:
-- Sin márgenes ni padding.
-- Altura total de la ventana.
-- Fondo color beige oscuro.
-*/
+:root {
+  --color-bg: #1f2519;
+  --color-primary: #4a5c3b;
+  --color-accent: #76c893;
+  --color-text: #e0e0d0;
+  --color-text-secondary: #a9f0c5;
+  --color-card-bg: #252e1d;
+  --color-header-bg: #1a2015;
+  --color-online: #4caf50;
+  --color-offline: #f44336;
+  --color-recording: #f44336;
+}
+
 body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background-color: #8E8868;
-}
-
-/* 
-Clase para establecer la altura en la mitad de la ventana del navegador (50vh).
-*/
-.half-height {
-  height: 50vh;
-}
-
-/* 
-Estilo para los contenedores de cámara:
-- Altura 50vh.
-- Sin padding.
-- Oculta contenido desbordado.
-- Bordes elegantes oscuros a los lados y abajo.
-- Fondo negro para evitar espacios vacíos con esquinas redondeadas.
-*/
-.camera-box {
-  height: 50vh;
+  margin: 0;
   padding: 0;
+  height: 100%;
+  background: var(--color-bg);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Header táctico */
+.header-tactical {
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-primary);
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-brand {
+  width: 45px;
+  height: 45px;
+}
+
+.system-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.status-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Contenedor principal */
+.main-container {
+  flex: 1;
+  padding: 5px 15px; /* Reducido para acercar panel y cámaras */
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Menos espacio entre panel y cámaras */
   overflow: hidden;
-  border-left: 1.5px solid #222; /* Borde elegante oscuro */
-  border-right: 1.5px solid #222; /* Borde elegante oscuro */
-  border-bottom: 4px solid #222; /* Borde elegante oscuro */
-  background-color: black; /* Para evitar huecos al redondear */
 }
 
-/* 
-Estilo para videos que se muestran juntos:
-- Ocupa todo el ancho y alto del contenedor.
-- Ajusta el contenido con object-fit cover para cubrir el área sin distorsión.
-- Se muestra como bloque.
-*/
-.video-juntas{
-  width: 100%;
-  height: 100%;
-  object-fit: cover; 
-  display: block;
-}
-
-/* 
-Efecto hover para elementos con clase hover:
-- Levanta el elemento 4px hacia arriba.
-- Aplica sombras para efecto de profundidad.
-*/
-.hover:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    12px 12px 24px #3e4230,
-    -12px -12px 24px #6a7152;
-}
-
-/* 
-Estilo para videos ajustados:
-- Ocupa todo el ancho y alto.
-- Usa object-fit contain para que el contenido se ajuste sin recorte.
-- Display block.
-*/
-.video-ajustado {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; 
-  display: block;
-}
-
-/* 
-Contenedor general de cámaras:
-- Altura automática.
-- Transición suave para cambios de altura en 0.3 segundos.
-*/
-#contenedor-camaras {
-  height: auto;
-  transition: height 0.3s ease;
-}
-
-/* 
-Boton de iniciar y detener la grabacion:
-- Color de fondo
-- Color de borde
-- Color de texto dentro de botones
-*/
-#btn-iniciar,
-#btn-detener,
-#btn-iniciar-individual,
-#btn-detener-individual {
-  background-color: #52583F;
-  border: 2px solid #323812;
-  color: #8E8868;
-  margin-top: 5px;
-  width: 200px;       /* Cambia el ancho según necesites */
-  text-align: center; /* Centra el texto dentro del botón */
-  margin-bottom: 10px; /* Espaciado entre botones si están en columna */
-  display: block;     /* Hace que ocupen toda la línea si están en un div */
-}
-
-/* 
-Boton de iniciar y detener la grabacion:
-- Color de fondo
-- Color de borde
-- Color de texto dentro de botones
-*/
-#btn-grabaciones {
-  background-color: #52583F;
-  border: 2px solid #323812;
-  color: #8E8868;
-  margin-top: 5px;
-  width: 200px;
-  text-align: center;
+/* Panel de control */
+.control-panel {
+  background-color: var(--color-card-bg);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
   margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+/* Contenedor de cámaras */
+/* Contenedor principal de cámaras */
+.cameras-main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 0;
+  height: auto; /* Ajusta automáticamente según el contenido */
+  min-height: 250px; /* Altura mínima para pantallas pequeñas */
+}
+
+/* Layout de las cámaras */
+.cameras-layout {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: stretch; /* Hace que las cámaras ocupen toda la altura del contenedor */
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* Tarjetas de cámara */
+.camera-card {
+  width: 33%; /* Tres cámaras iguales */
+  aspect-ratio: 16/9; /* Mantiene proporción 16:9 */
+  height: 100%; /* Ocupa toda la altura del contenedor */
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--color-primary);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.camera-status {
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.camera-status.online {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: var(--color-online);
+  border: 1px solid var(--color-online);
+}
+
+.camera-status.offline {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: var(--color-offline);
+  border: 1px solid var(--color-offline);
+}
+
+/* Feed de cámara */
+.camera-feed {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.video-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  margin-left: auto;
-  width: fit-content;
 }
 
-#btn-cerrar {
-  position: fixed; /* Hace que quede en la ventana */
-  bottom: 20px;     /* Distancia desde la parte inferior */
-  right: 20px;      /* Distancia desde la derecha */
-  background-color: #52583F;
-  border: 2px solid #323812;
-  color: #8E8868;
-  width: 200px;
-  text-align: center;
-  padding: 10px;
-  z-index: 1000; /* Asegura que quede visible encima */
+.camera-feed.hover {
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-/* 
-Botón de volver:
-- Inicialmente oculto.
-- Margen superior.
-- Colores y bordes personalizados.
-- Posición fija en la esquina superior izquierda.
-- Z-index alto para estar encima de otros elementos.
-*/
-#btn-volver {
-  display: none;
-  margin-top: 5px;
-  background-color: #52583F;
-  border: 2px solid #323812;
-  color: #8E8868;
+.camera-feed.hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+.camera-overlay {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 1000;
-  width: 120px;           
-  padding: 6px 10px;            
-  text-align: center;      
+  bottom: 6px;
+  left: 6px;
+  background: rgba(12, 20, 12, 0.8);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-accent);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* 
-Icono grande para tamaños grandes:
-- Tamaño de fuente muy grande (5rem).
-- Padding interno del 2%.
-*/
-.icono-grande {
-  font-size: 5rem !important;
-  padding: 2%;
+/* Botones tácticos */
+.btn-tactical {
+  background-color: #52583F;
+  border: 2px solid #323812;
+  color: #a9f0c5;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-tactical:hover {
+  background-color: #6a7152;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-tactical:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-tactical-secondary {
+  background-color: #4a6047;
+  border: 2px solid #323812;
+  color: #cfe8c0;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.btn-tactical-secondary:hover {
+  background-color: #5b6e56;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  color: #cfe8c0;
+  text-decoration: none;
+}
+
+/* Modal táctico */
+.tactical-modal {
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-primary);
+}
+
+.tactical-modal .modal-header {
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.tactical-modal .modal-footer {
+  border-top: 1px solid var(--color-primary);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .camera-card {
+    width: 33%;
+  }
+}
+
+@media (max-width: 992px) {
+  .cameras-layout {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .camera-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-container {
+    padding: 8px;
+  }
+
+  .control-panel > div {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .brand-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .system-title {
+    font-size: 1.2rem;
+  }
 }
